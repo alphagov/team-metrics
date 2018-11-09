@@ -1,7 +1,20 @@
 from jira import JIRA
+from jira.exceptions import JIRAError
 from jira.resources import GreenHopperResource
 import os
 import re
+
+
+def cycle_time(issue):
+    pass
+
+
+def process_cycle_efficiency(issue):
+    pass
+
+
+def number_of_stories(sprint):
+    pass
 
 
 def main():
@@ -15,41 +28,30 @@ def main():
     projects = jira.projects()
 
     for project in projects:
-        ### projectKeyOrID is not available as an argument yet as it has not been tagged in the release
-        # boards = jira.boards(projectKeyOrID=project.name)
-        # print("boards", boards)
-        # for board in boards:
-
-        # print("project name:", dir(project))
         # issues_in_project = jira.search_issues(
         #     'project={} AND SPRINT not in (closedSprints() AND sprint not in futureSprints())'.format(project.key)
         # )
 
-        # for value in issues_in_project:
-        #     for value in issues_in_project:
-        #         print(value.key, value.fields.summary, value.fields.assignee, value.fields.reporter, value.fields.updated, value.fields.resolutiondate)
-        #     # for sprint in value.fields.customfield_10004:
-        #     #     sprint_name = re.findall(r"name=[^,]*", str(value.fields.customfield_10004[0]))
-        #     #     print(sprint_name)
+        # issues_in_sprint = jira.search_issues(
+        #     'project={} AND SPRINT in (2)'.format(project.key)
+        # )
+        # for value in issues_in_sprint:
+        #     print(value)
 
-        print('sprints')
-        sprints = jira.search_issues(
-            'project={} AND SPRINT in (closedSprints(),openSprints())'.format(project.key)
-        )
+        boards = jira.boards(projectKeyOrID=project.id)
+        for board in boards:
+            print("board:", board)
+            try:
+                # print("sprints", jira.sprints(board.id))
+                for sprint in jira.sprints(board.id):
+                    if sprint.raw['state'] == 'future':
+                        continue
+                    print("sprint: {}, {}, {} - {}".format(sprint.id, sprint.name, sprint.raw['startDate'], sprint.raw['endDate']))
+                    print("sprint whole: {}".format(sprint.raw))
 
-        for value in sprints:
-            print(value)        
+            except JIRAError as e:
+                print(e)
 
-        issues_in_sprint = jira.search_issues(
-            'project={} AND SPRINT in (2)'.format(project.key)
-        )
-        for value in issues_in_sprint:
-            print(value)
-
-        issues = jira.search_issues("project = {}".format(project))
-
-        for issue in issues:
-            print("issue:", issue)
 
 
 if __name__ == "__main__":

@@ -1,8 +1,12 @@
 ipython==7.1.1
 filemagic==1.6
-jira==2.0.0
+# jira==2.0.0
 pycrypto==2.6.1
-requests==2.2.0
+requests==2.9.2
 requests-oauthlib==1.0.0
 requests-kerberos==0.12.0
 simplejson==3.16.0
+
+### projectKeyOrID is not available as an argument for jira.boards yet as it has not been tagged in the release
+### so using master from github instead
+-e git://github.com/pycontribs/jira.git@master#egg=jira
