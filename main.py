@@ -1,8 +1,8 @@
+#!/usr/bin/env python
 from jira import JIRA
 from jira.exceptions import JIRAError
 from jira.resources import GreenHopperResource
 import os
-import re
 
 
 def cycle_time(issue):
@@ -13,8 +13,25 @@ def process_cycle_efficiency(issue):
     pass
 
 
-def number_of_stories(sprint):
-    pass
+def find_value(input, key):
+    return input[input.index(key)+len(key):input.index(',', input.index(key))]
+
+
+def number_of_stories_completed(jira, project, sprint):
+    for issue in jira.search_issues('project={} AND SPRINT in ({})'.format(project.id, sprint.id)):
+        # print("  issue whole: {}".format(issue.raw))
+        # need to parse customfield_10020 for ACTIVE, startDate and endDate
+        # don't always use the first entry!
+        cf = issue.fields.customfield_10020[0]
+        try:
+            print("  issue: {}, {}, state: {} - startDate: {} - endDate: {} - completeDate: {}".format(issue.id,
+                                                                                                        issue.key,
+                                                                                                        find_value(cf, 'state='),
+                                                                                                        find_value(cf, 'startDate='),
+                                                                                                        find_value(cf, 'endDate='),
+                                                                                                        find_value(cf, 'completeDate='), ))
+        except ValueError as e:
+            pass
 
 
 def main():
@@ -47,7 +64,8 @@ def main():
                     if sprint.raw['state'] == 'future':
                         continue
                     print("sprint: {}, {}, {} - {}".format(sprint.id, sprint.name, sprint.raw['startDate'], sprint.raw['endDate']))
-                    print("sprint whole: {}".format(sprint.raw))
+                    number_of_stories_completed(jira, project, sprint)
+                    # print("sprint whole: {}".format(sprint.raw))
 
             except JIRAError as e:
                 print(e)
