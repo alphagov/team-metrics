@@ -23,6 +23,8 @@ def number_of_stories_completed(jira, project, sprint):
         # need to parse customfield_10020 for ACTIVE, startDate and endDate
         # don't always use the first entry!
         cf = issue.fields.customfield_10020[0]
+        if len(issue.fields.customfield_10020) > 1:
+            print("more than one customfield_10020!")
         try:
             print("  issue: {}, {}, state: {} - startDate: {} - endDate: {} - completeDate: {}".format(issue.id,
                                                                                                         issue.key,
