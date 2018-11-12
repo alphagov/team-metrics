@@ -1,7 +1,6 @@
 ipython==7.1.1
 filemagic==1.6
 # jira==2.0.0
-pycrypto==2.6.1
 requests==2.9.2
 requests-oauthlib==1.0.0
 requests-kerberos==0.12.0
