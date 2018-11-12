@@ -1,8 +1,10 @@
 #!/usr/bin/env python
+import os
+import re
+
 from jira import JIRA
 from jira.exceptions import JIRAError
 from jira.resources import GreenHopperResource
-import os
 
 
 def cycle_time(issue):
@@ -13,8 +15,9 @@ def process_cycle_efficiency(issue):
     pass
 
 
-def find_value(input, key):
-    return input[input.index(key)+len(key):input.index(',', input.index(key))]
+def get_dict_from_key_value_pair(input):
+    key_value_str = re.search(r"\[(.+)\]", input).group(1)
+    return dict(kv.split("=") for kv in key_value_str.split(","))
 
 
 def number_of_stories_completed(jira, project, sprint):
@@ -26,12 +29,15 @@ def number_of_stories_completed(jira, project, sprint):
         if len(issue.fields.customfield_10020) > 1:
             print("more than one customfield_10020!")
         try:
-            print("  issue: {}, {}, state: {} - startDate: {} - endDate: {} - completeDate: {}".format(issue.id,
-                                                                                                        issue.key,
-                                                                                                        find_value(cf, 'state='),
-                                                                                                        find_value(cf, 'startDate='),
-                                                                                                        find_value(cf, 'endDate='),
-                                                                                                        find_value(cf, 'completeDate='), ))
+            fields = get_dict_from_key_value_pair(cf)
+            print("  issue: {}, {}, state: {} - startDate: {} - endDate: {} - completeDate: {}".format(
+                issue.id,
+                issue.key,
+                fields['state'],
+                fields['startDate'],
+                fields['endDate'],
+                fields['completeDate'])
+            )
         except ValueError as e:
             pass
 
@@ -47,16 +53,6 @@ def main():
     projects = jira.projects()
 
     for project in projects:
-        # issues_in_project = jira.search_issues(
-        #     'project={} AND SPRINT not in (closedSprints() AND sprint not in futureSprints())'.format(project.key)
-        # )
-
-        # issues_in_sprint = jira.search_issues(
-        #     'project={} AND SPRINT in (2)'.format(project.key)
-        # )
-        # for value in issues_in_sprint:
-        #     print(value)
-
         boards = jira.boards(projectKeyOrID=project.id)
         for board in boards:
             print("board:", board)
@@ -70,7 +66,8 @@ def main():
                     # print("sprint whole: {}".format(sprint.raw))
 
             except JIRAError as e:
-                print(e)
+                # print(e)
+                pass
 
 
 
