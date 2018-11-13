@@ -8,10 +8,19 @@ https://id.atlassian.com/manage/api-tokens
 
 ## Environment
 
-create `environment.sh` containing:
+create and source `environment.sh` containing:
 
 ```bash
 export TM_USER='' # Atlassian username / email address
 export TM_PAT='' # Atlassian personal access token
 export TM_HOST='' # Jira host (X for X.atlassian.net)
+
+export TM_PIVOTAL_PAT= # pivotal personal access token, created here - https://www.pivotaltracker.com/profile
+export TM_PIVOTAL_PROJECT_ID= # pivotal project id, found in URL of project - https://www.pivotaltracker.com/n/projects/nnnnnnn
 ```
+
+## Running
+
+`./main.py`
+
+Follow instructions to see team metrics from delivery tools

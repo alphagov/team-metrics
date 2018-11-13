@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from datetime import timedelta
 import os
 import re
 
@@ -6,14 +7,15 @@ from jira import JIRA
 from jira.exceptions import JIRAError
 from jira.resources import GreenHopperResource
 
+from pivotalclient import PivotalClient
 
 class Jira(object):
     sprint_info_field_name = ''
 
     def __init__(self):
         self.jira = JIRA(
-            basic_auth=(os.environ['TM_USER'], os.environ['TM_PAT']),
-            server='https://{}.atlassian.net'.format(os.environ['TM_HOST']),
+            basic_auth=(os.environ['TM_USER'], os.environ['TM_JIRA_PAT']),
+            server='https://{}.atlassian.net'.format(os.environ['TM_JIRA_HOST']),
             options={'agile_rest_path': GreenHopperResource.AGILE_BASE_REST_PATH}
         )
 
@@ -108,9 +110,56 @@ class Jira(object):
                 break
 
 
+class Pivotal:
+    def __init__(self):
+        self.pivotal = PivotalClient(os.environ['TM_PIVOTAL_PAT'], project_id=os.environ['TM_PIVOTAL_PROJECT_ID'])
+
+    def cycle_time(self, story):
+        print("  cycle time")
+        print("    {} - {}".format(story['created_at'], story.get('accepted_at', 'N/A')))
+
+    def process_cycle_efficiency(self, story):
+        print("  process cycle efficiency")
+        print("    {}".format(story['current_state']))
+        print("    {} - {} - {}".format(story['created_at'], story['updated_at'], story.get('accepted_at')))
+
+    def cycle_time_details(self, details):
+        print("  cycle time details")
+        for detail in details:
+            started = timedelta(milliseconds=detail['started_time'])
+            finished = timedelta(milliseconds=detail['finished_time'])
+            delivered = timedelta(milliseconds=detail['delivered_time'])
+            rejected = timedelta(milliseconds=detail['rejected_time'])
+            total = timedelta(milliseconds=detail['total_cycle_time'])
+            print("    started: {} - finished: {} - delivered: {} - total: {}, rejected: {}".format(
+                started, finished, delivered, total, rejected))
+
+    def get_pivotal_metrics(self):
+        print("Pivotal")
+        for iteration in self.pivotal.get_project_iterations():
+            print("\nIteration: {} - {}".format(iteration['start'], iteration['finish']))
+            for story in iteration['stories']:
+                print(story['name'])
+                self.cycle_time(story)
+                self.process_cycle_efficiency(story)
+
+            self.cycle_time_details(self.pivotal.get_project_cycle_time_details(iteration['number']))
+
+            print("\n  Number of accepted stories: {}".format(len([s for s in iteration['stories'] if s['current_state'] == 'accepted'])))
+
+
 def main():
-    jira = Jira()
-    jira.get_jira_metrics()
+    while True:
+        choice = input("\nCollect team metrics from (j)ira, (p)ivotal, (a)ll, e(x)it:")
+
+        if choice in ['j', 'a']:
+            jira = Jira()
+            jira.get_jira_metrics()
+        if choice in ['p', 'a']:
+            pivotal = Pivotal()
+            pivotal.get_pivotal_metrics()
+        if choice == 'x':
+            break
 
 
 if __name__ == "__main__":
