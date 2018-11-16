@@ -4,6 +4,7 @@ requests==2.9.2
 requests-oauthlib==1.0.0
 requests-kerberos==0.12.0
 simplejson==3.16.0
+py-trello==0.13.0
 
 ### projectKeyOrID is not available as an argument for jira.boards yet as it has not been tagged in the release
 ### so using master from github instead

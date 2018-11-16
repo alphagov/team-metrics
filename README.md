@@ -16,7 +16,11 @@ export TM_PAT='' # Atlassian personal access token
 export TM_HOST='' # Jira host (X for X.atlassian.net)
 
 export TM_PIVOTAL_PAT= # pivotal personal access token, created here - https://www.pivotaltracker.com/profile
-export TM_PIVOTAL_PROJECT_ID= # pivotal project id, found in URL of project - https://www.pivotaltracker.com/n/projects/nnnnnnn
+export TM_PIVOTAL_PROJECT_ID= # pivotal project id, found in URL of project - https://www.pivotaltracker.com/n/projects/<project id>
+
+export TM_TRELLO_PAT= # Get key from https://trello.com/app-key
+export TM_TRELLO_TOKEN= # Click Token on page - https://trello.com/app-key
+export TM_TRELLO_BOARD_ID= # Get https://trello.com/b/<board id>/welcome
 ```
 
 ## Running
