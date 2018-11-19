@@ -4,6 +4,7 @@ import sys
 from app.jira import Jira
 from app.pivotal import Pivotal
 from app.trello import Trello
+from app.github import Github
 
 
 def get_metrics_from_tool(choice):
@@ -16,6 +17,9 @@ def get_metrics_from_tool(choice):
     if choice in ['t', 'a']:
         trello = Trello()
         trello.get_metrics()
+    if choice in ['g', 'a']:
+        github = Github()
+        github.get_metrics()
 
 
 def main():
@@ -23,7 +27,7 @@ def main():
         get_metrics_from_tool(sys.argv[1])
     else:
         while True:
-            choice = input("\nCollect team metrics from (j)ira, (p)ivotal, (t)rello, (a)ll, e(x)it:")
+            choice = input("\nCollect team metrics from (j)ira, (p)ivotal, (t)rello, (a)ll, (g)ithub, e(x)it:")
 
             if choice == 'x':
                 break

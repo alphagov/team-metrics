@@ -20,7 +20,9 @@ export TM_PIVOTAL_PROJECT_ID= # pivotal project id, found in URL of project - ht
 
 export TM_TRELLO_PAT= # Get key from https://trello.com/app-key
 export TM_TRELLO_TOKEN= # Click Token on page - https://trello.com/app-key
-export TM_TRELLO_BOARD_ID= # Get https://trello.com/b/<board id>/welcome
+export TM_TRELLO_BOARD_ID= # Get https://trello.com/b/<board id>
+
+export TM_GITHUB_PAT= # Token generated from https://github.com/settings/tokens
 ```
 
 ## Running
