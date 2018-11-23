@@ -56,29 +56,6 @@ class PivotalClient:
             raise ApiError('GET {} {} {}'.format(endpoint, resp.status_code, resp.json()))
         return resp.json()
 
-    def _get_all(self, endpoint, querystring=None):
-        DEFAULT_PAGE_LIMIT = 1000
-        _querystring = querystring.copy() if querystring else {}
-        _querystring['limit'] = DEFAULT_PAGE_LIMIT
-        _querystring['offset'] = 0
-        results = []
-        while True:
-            response = self._get(endpoint, _querystring, with_envelope=True)
-            
-            # No results in this page? We're done!
-            if len(response.get('data', [])) == 0:
-                break
-
-            # Extend our results with the results provided.
-            results.extend(response.get('data'))
-            
-            # Update the page limit from the server-specified limit.
-            _querystring['limit'] = response.get('pagination', {}).get('limit', DEFAULT_PAGE_LIMIT)
-            
-            # Increment the offset by the server-specified limit to get the next page.
-            _querystring['offset'] += _querystring['limit']
-        return results
-
     def _verify_project_id_exists(self):
         if not self.project_id:
             caller_name = 'UNKNOWN'
@@ -87,15 +64,6 @@ class PivotalClient:
             except Exception as ex:
                 caller_name = inspect.stack()[1][3]
             raise ApiError('Project ID not set on API connection and is required by {}().'.format(caller_name))
-
-    def _verify_account_id_exists(self):
-        if not self.account_id:
-            caller_name = 'UNKNOWN'
-            try:
-                caller_name = sys.getframe(1).f_code.co_name
-            except Exception as ex:
-                caller_name = inspect.stack()[1][3]
-            raise ApiError('Account ID not set on API connection and is required by {}().'.format(caller_name))
 
     def get_projects(self):
         uri = self.api_projects
@@ -130,21 +98,6 @@ class PivotalClient:
         self._verify_project_id_exists()
         return self._get(self.api_story_blockers.format(story_id))
 
-    def get_stories_by_filter(self, pivotal_filter):
-        self._verify_project_id_exists()
-        filt = self.api_filter.copy()
-        filt['filter'] = pivotal_filter
-        uri = self.api_stories
-        results = self._get_all(uri, querystring=filt)
-        return results
-    
-    def get_stories_by_label(self, label):
-        self._verify_project_id_exists()
-        filt = {'filter': 'label:"{}"'.format(label)}
-        uri = self.api_stories
-        results = self._get_all(uri, querystring=filt)
-        return results
-    
     def get_story_activities(self, story_id):
         self._verify_project_id_exists()
         uri = self.api_activity.format(story_id)
