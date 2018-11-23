@@ -1,18 +1,26 @@
-#!/usr/bin/env python
-from datetime import timedelta
+from datetime import datetime, timedelta
 import os
 
-from pivotalclient import PivotalClient
-from pivotalclient import ApiError
+from app.pivotal_client import PivotalClient
+from app.pivotal_client import ApiError
 
 
 class Pivotal:
+    DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+
     def __init__(self):
         self.pivotal = PivotalClient(os.environ['TM_PIVOTAL_PAT'], project_id=os.environ['TM_PIVOTAL_PROJECT_ID'])
 
     def cycle_time(self, story):
         print("  cycle time")
-        print("    {} - {}".format(story['created_at'], story.get('accepted_at', 'N/A')))
+        _cycle_time = None
+        if story.get('accepted_at'):
+            accepted_at = datetime.strptime(story['accepted_at'], self.DATETIME_FORMAT)
+            created_at = datetime.strptime(story['created_at'], self.DATETIME_FORMAT)
+            _cycle_time = accepted_at - created_at
+
+        print("    {} - {} = {}".format(story['created_at'], story.get('accepted_at', 'N/A'), _cycle_time))
+        return _cycle_time
 
     def process_cycle_efficiency(self, story):
         print("  process cycle efficiency")
@@ -37,7 +45,8 @@ class Pivotal:
                 print("\nIteration: {} - {}".format(iteration['start'], iteration['finish']))
                 for story in iteration['stories']:
                     print(story['name'])
-                    self.cycle_time(story)
+                    _cycle_time = self.cycle_time(story)
+                    print('    cycle_time', _cycle_time)
                     self.process_cycle_efficiency(story)
 
                 if iteration.get('number'):

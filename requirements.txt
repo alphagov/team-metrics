@@ -10,6 +10,3 @@ py-trello==0.13.0
 ### projectKeyOrID is not available as an argument for jira.boards yet as it has not been tagged in the release
 ### so using master from github instead
 -e git://github.com/pycontribs/jira.git@master#egg=jira
-
-### use a local version of pivotalclient, see CONTRIBUTING.md
-../pivotalclient/

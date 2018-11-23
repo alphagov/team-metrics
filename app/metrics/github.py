@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 
 from github3 import login
 
+from app import Metrics
+
 
 class Github:
     def __init__(self):

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import sys
 
-from app.jira import Jira
-from app.pivotal import Pivotal
-from app.trello import Trello
-from app.github import Github
+from app.metrics.jira import Jira
+from app.metrics.pivotal import Pivotal
+from app.metrics.trello import Trello
+from app.metrics.github import Github
 
 
 def get_metrics_from_tool(choice):
