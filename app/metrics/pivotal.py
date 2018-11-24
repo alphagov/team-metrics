@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import os
 
+from app import Metrics, write_csv_line
 from app.pivotal_client import PivotalClient
 from app.pivotal_client import ApiError
 
@@ -19,39 +20,62 @@ class Pivotal:
             created_at = datetime.strptime(story['created_at'], self.DATETIME_FORMAT)
             _cycle_time = accepted_at - created_at
 
-        print("    {} - {} = {}".format(story['created_at'], story.get('accepted_at', 'N/A'), _cycle_time))
         return _cycle_time
+        # return self.strfdelta(_cycle_time, "{days} days {hours:02d}:{minutes:02d}:{seconds:02d}")
 
     def process_cycle_efficiency(self, story):
         print("  process cycle efficiency")
         print("    {}".format(story['current_state']))
-        print("    {} - {} - {}".format(story['created_at'], story['updated_at'], story.get('accepted_at')))
+        blocked_time = 0
+        for blocker in [b for b in self.pivotal.get_story_blockers(story['id']) if b['resolved']]:
+        # for blocker in self.pivotal.get_story_blockers(story['id']):
+            # updated_at = datetime.strptime(blocker['updated_at'], self.DATETIME_FORMAT) if blocker['resolved'] else datetime.now()
+            updated_at = datetime.strptime(blocker['updated_at'], self.DATETIME_FORMAT)
+            created_at = datetime.strptime(blocker['created_at'], self.DATETIME_FORMAT)
+            blocked_time = updated_at - created_at
 
-    def cycle_time_details(self, details):
-        print("  cycle time details")
-        for detail in details:
-            started = timedelta(milliseconds=detail['started_time'])
-            finished = timedelta(milliseconds=detail['finished_time'])
-            delivered = timedelta(milliseconds=detail['delivered_time'])
-            rejected = timedelta(milliseconds=detail['rejected_time'])
-            total = timedelta(milliseconds=detail['total_cycle_time'])
-            print("    started: {} - finished: {} - delivered: {} - total: {}, rejected: {}".format(
-                started, finished, delivered, total, rejected))
+        if story.get('accepted_at'):
+            # print("    created: {} - blocked: {} - accepted: {}".format(story['created_at'], blocked_time, story['accepted_at']))
+            _cycle_time = self.cycle_time(story)
+            if blocked_time:
+                return (_cycle_time - blocked_time) / _cycle_time
+            return 1
 
     def get_metrics(self):
         print("Pivotal")
         for iteration in self.pivotal.get_project_iterations():
+            _cycle_time = _process_cycle_efficiency = None
+            _num_stories_complete = _num_stories_incomplete = 0
             try:
                 print("\nIteration: {} - {}".format(iteration['start'], iteration['finish']))
                 for story in iteration['stories']:
                     print(story['name'])
-                    _cycle_time = self.cycle_time(story)
-                    print('    cycle_time', _cycle_time)
-                    self.process_cycle_efficiency(story)
+                    if _cycle_time:
+                        _cycle_time += self.cycle_time(story)
+                    else:
+                        _cycle_time = self.cycle_time(story)
+                    print('    cycle_time: {}'.format(_cycle_time))
+                    pce = self.process_cycle_efficiency(story)
 
-                if iteration.get('number'):
-                    self.cycle_time_details(self.pivotal.get_project_cycle_time_details(iteration['number']))
+                    if pce:
+                        print("    process_cycle_efficiency: {}".format(pce))
+                        if _process_cycle_efficiency:
+                            _process_cycle_efficiency += pce
+                        else:
+                            _process_cycle_efficiency = pce
             except ApiError as e:
                 print('api error', e)
 
-            print("\n  Number of accepted stories: {}".format(len([s for s in iteration['stories'] if s['current_state'] == 'accepted'])))
+            _num_stories_complete = len([s for s in iteration['stories'] if s['current_state'] == 'accepted'])
+            _num_stories_incomplete = len(iteration['stories']) - _num_stories_complete
+            print("\n  Number of accepted stories: {}".format(_num_stories_complete))
+            print("\n  Number of incomplete stories: {}".format(_num_stories_incomplete))
+
+            m = Metrics(
+                "{} - {}".format(iteration["start"], iteration["finish"]),
+                "pivotal",
+                _cycle_time,
+                _process_cycle_efficiency / _num_stories_complete,
+                _num_stories_complete
+            )
+            write_csv_line(m)
