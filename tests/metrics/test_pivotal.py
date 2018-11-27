@@ -6,21 +6,51 @@ from app.metrics.pivotal import Pivotal
 
 
 def mock_pivotal_client(
-    mocker, start="2018-11-01T12:00:00Z", finish="2018-11-14T12:00:00Z",
-    stories=[], story_blockers=[], story_started="2018-11-01T12:00:00Z"
+    mocker, project_info={}, iterations=[], stories=[],
+    story_blockers=[], story_activities={}
 ):
     mocker.patch("os.environ", {
         'TM_PIVOTAL_PAT': 'test_pat',
         'TM_PIVOTAL_PROJECT_ID': 'test_project_id',
     })
 
-    if stories == []:
-        stories = [
+    if project_info == {}:
+        project_info = {
+            'iteration_length': 1,
+            'number_of_done_iterations_to_show': 3,
+            'current_iteration_number': 3
+        }
+
+    if iterations == []:
+        iterations = [
             {
-                "id": 1,
-                "current_state": "accepted",
-                "name": "test",
-                "accepted_at": "2018-11-03T12:00:00Z",
+                "start": "2018-11-01T12:00:00Z",
+                "finish": "2018-11-14T12:00:00Z",
+                "stories": stories
+            }
+        ]
+
+        if stories == []:
+            stories = [
+                {
+                    "id": 1,
+                    "current_state": "accepted",
+                    "name": "test",
+                    "accepted_at": "2018-11-03T12:00:00Z",
+                }
+            ]
+
+    if story_activities == {}:
+        story_activities[1] = [
+            {
+                'highlight': 'started',
+                'changes': [
+                    {
+                        'new_values': {
+                            'updated_at': "2018-11-01T12:00:00Z"
+                        }
+                    }
+                ],
             }
         ]
 
@@ -28,14 +58,11 @@ def mock_pivotal_client(
         def __init__(self, _, project_id=''):
             pass
 
+        def get_project(self):
+            return project_info
+
         def get_project_iterations(self):
-            return [
-                {
-                    "start": "2018-11-01T12:00:00Z",
-                    "finish": "2018-11-14T12:00:00Z",
-                    "stories": stories
-                }
-            ]
+            return iterations
 
         def get_story_blockers(self, story_id):
             for blocker in story_blockers:
@@ -45,18 +72,7 @@ def mock_pivotal_client(
             return []
 
         def get_story_activities(self, story_id):
-            return [
-                {
-                    'highlight': 'started',
-                    'changes': [
-                        {
-                            'new_values': {
-                                'updated_at': "2018-11-01T12:00:00Z"
-                            }
-                        }
-                    ]
-                }
-            ]
+            return story_activities.get(story_id)
 
     mocker.patch("app.metrics.pivotal.PivotalClient", MockPivotalClient)
 
@@ -111,8 +127,6 @@ def test_get_blocked_time_unresolved_is_none(mocker):
 
 
 def test_get_metrics(mocker):
-    iteration_start = "2018-11-01T12:00:00Z"
-    iteration_finish = "2018-11-14T12:00:00Z"
     story_started = "2018-11-01T12:00:00Z"
     story_accepted = "2018-11-03T12:00:00Z"
     story = {
@@ -122,23 +136,112 @@ def test_get_metrics(mocker):
         "accepted_at": story_accepted,
     }
 
-    mock_pivotal_client(mocker, start=iteration_start, finish=iteration_finish, stories=[story])
+    mock_pivotal_client(mocker, stories=[story])
     mock_write_csv_line = mocker.patch("app.metrics.pivotal.write_csv_line")
 
     p = Pivotal()
     metrics = p.get_metrics()
 
     assert len(metrics) == 1
-    assert metrics[0].started_on == iteration_start
-    assert metrics[0].ended_on == iteration_finish
     assert metrics[0].cycle_time == get_datetime(story_accepted) - get_datetime(story_started)
     assert metrics[0].process_cycle_efficiency == 1
     assert mock_write_csv_line.called
 
 
+def test_get_metrics_last_2_weeks(mocker):
+    iterations = [
+        {
+            "number": 1,
+            "start": "2018-11-01T12:00:00Z",
+            "finish": "2018-11-8T12:00:00Z",
+            "stories": [
+                {
+                    "id": 1,
+                    "current_state": "accepted",
+                    "name": "test",
+                    "accepted_at": "2018-11-03T12:00:00Z",
+                },
+                {
+                    "id": 2,
+                    "current_state": "accepted",
+                    "name": "test 2",
+                    "accepted_at": "2018-11-05T12:00:00Z",
+                },
+            ]
+        },
+        {
+            "number": 2,
+            "start": "2018-11-08T12:00:00Z",
+            "finish": "2018-11-15T12:00:00Z",
+            "stories": [
+                {
+                    "id": 3,
+                    "current_state": "accepted",
+                    "name": "test",
+                    "accepted_at": "2018-11-10T12:00:00Z",
+                },
+            ]
+        }
+    ]
+    story_activities = {}
+    story_activities[1] = [
+        {
+            'highlight': 'started',
+            'changes': [
+                {
+                    'new_values': {
+                        'updated_at': "2018-11-01T12:00:00Z"
+                    }
+                }
+            ],
+        }
+    ]
+    story_activities[2] = [
+        {
+            'highlight': 'started',
+            'changes': [
+                {
+                    'new_values': {
+                        'updated_at': "2018-11-02T12:00:00Z"
+                    }
+                }
+            ],
+        }
+    ]
+    story_activities[3] = [
+        {
+            'highlight': 'started',
+            'changes': [
+                {
+                    'new_values': {
+                        'updated_at': "2018-11-09T12:00:00Z"
+                    }
+                }
+            ],
+        }
+    ]
+
+    mock_pivotal_client(mocker, iterations=iterations, story_activities=story_activities)
+    mock_write_csv_line = mocker.patch("app.metrics.pivotal.write_csv_line")
+
+    p = Pivotal()
+    metrics = p.get_metrics(last_num_weeks=2)
+
+    assert len(metrics) == 2
+    assert metrics[0].started_on == iterations[0]['start']
+    assert metrics[0].ended_on == iterations[0]['finish']
+    assert metrics[0].cycle_time == (
+        get_datetime(iterations[0]['stories'][0]['accepted_at']) -
+        get_datetime(story_activities[1][0]['changes'][0]['new_values']['updated_at'])
+    ) + (
+        get_datetime(iterations[0]['stories'][1]['accepted_at']) -
+        get_datetime(story_activities[2][0]['changes'][0]['new_values']['updated_at'])
+    )
+    assert metrics[0].process_cycle_efficiency == 1
+    assert mock_write_csv_line.called
+
+
 def test_get_metrics_with_story_blocker(mocker):
-    iteration_start = "2018-11-01T12:00:00Z"
-    iteration_finish = "2018-11-14T12:00:00Z"
     story_started = "2018-11-01T12:00:00Z"
     story_accepted = "2018-11-03T12:00:00Z"
     blocked_start = "2018-11-01T12:00:00Z"
@@ -158,7 +261,7 @@ def test_get_metrics_with_story_blocker(mocker):
     }
 
     mock_pivotal_client(
-        mocker, start=iteration_start, finish=iteration_finish,
+        mocker,
         stories=[story], story_blockers=[blocker]
     )
     mock_write_csv_line = mocker.patch("app.metrics.pivotal.write_csv_line")
@@ -167,8 +270,6 @@ def test_get_metrics_with_story_blocker(mocker):
     metrics = p.get_metrics()
 
     assert len(metrics) == 1
-    assert metrics[0].started_on == "2018-11-01T12:00:00Z"
-    assert metrics[0].ended_on == "2018-11-14T12:00:00Z"
     assert metrics[0].cycle_time == get_datetime(story_accepted) - get_datetime(story_started)
     assert metrics[0].process_cycle_efficiency == (
         (get_datetime(blocked_updated) - get_datetime(blocked_start)) / metrics[0].cycle_time
@@ -178,8 +279,6 @@ def test_get_metrics_with_story_blocker(mocker):
 
 
 def test_get_metrics_with_story_blocker_unresolved(mocker):
-    iteration_start = "2018-11-01T12:00:00Z"
-    iteration_finish = "2018-11-14T12:00:00Z"
     story_started = "2018-11-01T12:00:00Z"
     story_accepted = "2018-11-03T12:00:00Z"
     blocked_start = "2018-11-01T12:00:00Z"
@@ -204,7 +303,7 @@ def test_get_metrics_with_story_blocker_unresolved(mocker):
     }
 
     mock_pivotal_client(
-        mocker, start=iteration_start, finish=iteration_finish,
+        mocker, 
         stories=stories, story_blockers=[blocker]
     )
     mock_write_csv_line = mocker.patch("app.metrics.pivotal.write_csv_line")
@@ -213,8 +312,6 @@ def test_get_metrics_with_story_blocker_unresolved(mocker):
     metrics = p.get_metrics()
 
     assert len(metrics) == 1
-    assert metrics[0].started_on == "2018-11-01T12:00:00Z"
-    assert metrics[0].ended_on == "2018-11-14T12:00:00Z"
     assert metrics[0].cycle_time == get_datetime(story_accepted) - get_datetime(story_started)
     assert metrics[0].process_cycle_efficiency == 1
     assert metrics[0].num_incomplete == 1

@@ -31,7 +31,7 @@ class PivotalClient:
             self.api_project_iterations = '{}/{}/iterations'.format(self.api_projects, self.project_id)
             self.api_project_cycle_time_details = '{}/{}/iterations/{}/analytics/cycle_time_details'.format(
                 self.api_projects, self.project_id, '{}')
-            self.api_project_iteration = '{}/{}/iteration/{}'.format(self.api_projects, self.project_id, '{}')
+            self.api_project_iteration = '{}/{}/iterations/{}'.format(self.api_projects, self.project_id, '{}')
             self.api_stories = '{}/stories'.format(self.api_project, self.project_id)
             self.api_story = '{}/stories/{}'.format(self.api_project, '{}')
             self.api_story_blockers = '{}/stories/{}/blockers'.format(self.api_project, '{}')

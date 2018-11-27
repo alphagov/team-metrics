@@ -14,7 +14,7 @@ def get_metrics_from_tool(choice):
         jira.get_metrics()
     if choice in ['p', 'a']:
         pivotal = Pivotal()
-        pivotal.get_metrics()
+        pivotal.get_metrics(last_num_weeks=2)
     if choice in ['t', 'a']:
         trello = Trello()
         trello.get_metrics()

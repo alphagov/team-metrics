@@ -26,10 +26,35 @@ class Pivotal:
             if activity['highlight'] == 'started':
                 return activity['changes'][0]['new_values']['updated_at']
 
-    def get_metrics(self):
+    def get_iteration_range(self, last_num_weeks):
+        project_info = self.pivotal.get_project()
+
+        iteration_length = project_info['iteration_length']
+        num_iterations = project_info['number_of_done_iterations_to_show']
+        current_iteration_number = project_info['current_iteration_number']
+
+        iteration_interval = last_num_weeks % iteration_length
+
+        iteration_end = current_iteration_number - 1
+        iteration_start = iteration_end - iteration_interval - 1
+        if iteration_start < 1:
+            iteration_start = 1
+
+        return iteration_start, iteration_end
+
+    def get_metrics(self, last_num_weeks=None):
         print("Pivotal")
+
+        iteration_start = iteration_end = 0
+
+        if last_num_weeks:
+            iteration_start, iteration_end = self.get_iteration_range(last_num_weeks)
+
         metrics = []
         for iteration in self.pivotal.get_project_iterations():
+            if iteration_start > 0 and (iteration['number'] < iteration_start or iteration['number'] > iteration_end):
+                continue
+
             _cycle_time = _process_cycle_efficiency = None
             _num_stories_complete = _num_stories_incomplete = 0
             try:
