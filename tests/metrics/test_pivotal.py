@@ -17,7 +17,6 @@ def mock_pivotal_client(
     if project_info == {}:
         project_info = {
             'iteration_length': 1,
-            'number_of_done_iterations_to_show': 3,
             'current_iteration_number': 3
         }
 
@@ -46,6 +45,7 @@ def mock_pivotal_client(
                 'highlight': 'started',
                 'changes': [
                     {
+                        'kind': 'story',
                         'new_values': {
                             'updated_at': "2018-11-01T12:00:00Z"
                         }
@@ -56,12 +56,12 @@ def mock_pivotal_client(
 
     class MockPivotalClient:
         def __init__(self, _, project_id=''):
-            pass
+            self.project_id = project_id
 
         def get_project(self):
             return project_info
 
-        def get_project_iterations(self):
+        def get_project_iterations(self, offset=1, limit=10):
             return iterations
 
         def get_story_blockers(self, story_id):
@@ -181,7 +181,7 @@ def test_get_metrics_last_2_weeks(mocker):
                     "accepted_at": "2018-11-10T12:00:00Z",
                 },
             ]
-        }
+        },
     ]
     story_activities = {}
     story_activities[1] = [
@@ -189,6 +189,7 @@ def test_get_metrics_last_2_weeks(mocker):
             'highlight': 'started',
             'changes': [
                 {
+                    'kind': 'story',
                     'new_values': {
                         'updated_at': "2018-11-01T12:00:00Z"
                     }
@@ -201,6 +202,7 @@ def test_get_metrics_last_2_weeks(mocker):
             'highlight': 'started',
             'changes': [
                 {
+                    'kind': 'story',
                     'new_values': {
                         'updated_at': "2018-11-02T12:00:00Z"
                     }
@@ -213,6 +215,7 @@ def test_get_metrics_last_2_weeks(mocker):
             'highlight': 'started',
             'changes': [
                 {
+                    'kind': 'story',
                     'new_values': {
                         'updated_at': "2018-11-09T12:00:00Z"
                     }

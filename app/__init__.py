@@ -2,7 +2,8 @@ import os
 
 
 class Metrics:
-    def __init__(self, started_on, ended_on, source, cycle_time, process_cycle_efficiency, num_stories, num_incomplete):
+    def __init__(self, project_id, started_on, ended_on, source, cycle_time, process_cycle_efficiency, num_stories, num_incomplete):
+        self.project_id = project_id
         self.started_on = started_on
         self.ended_on = ended_on
         self.source = source
@@ -18,7 +19,8 @@ class Metrics:
         return fmt.format(**d)
 
     def get_csv_line(self):
-        return "{}, {},{},{},{},{},{}\n".format(
+        return "{} ,{} ,{} ,{} ,{} ,{} ,{} ,{}\n".format(
+            self.project_id,
             self.started_on,
             self.ended_on,
             self.source,
@@ -32,7 +34,7 @@ class Metrics:
 def create_csv_header():
     with open(os.environ['TM_CSV_FILENAME'], 'w') as csv:
         csv.writelines(
-            'Started on, Ended on, Source, Cycle time, Process cycle efficiency, Number of stories, Incomplete stories\n')
+            'Project id, Started on, Ended on, Source, Cycle time, Process cycle efficiency, Number of stories, Incomplete stories\n')
 
 
 def write_csv_line(metrics):

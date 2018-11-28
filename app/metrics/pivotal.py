@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import os
+from math import ceil
 
 from app import Metrics, write_csv_line
 from app.metrics import get_cycle_time, get_datetime, get_process_cycle_efficiency
@@ -24,48 +25,55 @@ class Pivotal:
         activities = self.pivotal.get_story_activities(story_id)
         for activity in activities:
             if activity['highlight'] == 'started':
-                return activity['changes'][0]['new_values']['updated_at']
+                for story in [a for a in activity['changes'] if a['kind'] == 'story']:
+                    return story['new_values']['updated_at']
+        print(">>>> Not started", story_id)
 
     def get_iteration_range(self, last_num_weeks):
         project_info = self.pivotal.get_project()
 
         iteration_length = project_info['iteration_length']
-        num_iterations = project_info['number_of_done_iterations_to_show']
         current_iteration_number = project_info['current_iteration_number']
 
-        iteration_interval = last_num_weeks % iteration_length
+        num_iterations = int(ceil(last_num_weeks / iteration_length))
 
         iteration_end = current_iteration_number - 1
-        iteration_start = iteration_end - iteration_interval - 1
+        iteration_start = iteration_end - num_iterations - 1
+
         if iteration_start < 1:
+            # adjust number of iterations if attempting to get more iterations than available
+            num_iterations += iteration_start
             iteration_start = 1
 
-        return iteration_start, iteration_end
+        return iteration_start, num_iterations
 
     def get_metrics(self, last_num_weeks=None):
         print("Pivotal")
 
-        iteration_start = iteration_end = 0
+        iteration_start = num_iterations = 0
 
         if last_num_weeks:
-            iteration_start, iteration_end = self.get_iteration_range(last_num_weeks)
+            iteration_start, num_iterations = self.get_iteration_range(last_num_weeks)
+
+        print("iterations: {} to {}".format(iteration_start, iteration_start + num_iterations))
 
         metrics = []
-        for iteration in self.pivotal.get_project_iterations():
-            if iteration_start > 0 and (iteration['number'] < iteration_start or iteration['number'] > iteration_end):
-                continue
-
+        for iteration in self.pivotal.get_project_iterations(offset=iteration_start, limit=num_iterations):
             _cycle_time = _process_cycle_efficiency = None
+
             _num_stories_complete = _num_stories_incomplete = 0
             try:
                 print("\nIteration: {} - {}".format(iteration['start'], iteration['finish']))
-                for story in iteration['stories']:                    
+                for story in iteration['stories']:
                     if not story.get('accepted_at'):
                         continue
 
                     print(story['name'])
 
                     started_at = self.get_started_at(story['id'])
+
+                    if not started_at:
+                        continue
 
                     if _cycle_time:
                         _cycle_time += get_cycle_time(
@@ -95,6 +103,7 @@ class Pivotal:
             print("\n  Number of incomplete stories: {}".format(_num_stories_incomplete))
 
             m = Metrics(
+                self.pivotal.project_id,
                 iteration["start"],
                 iteration["finish"],
                 "pivotal",
