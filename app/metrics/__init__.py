@@ -8,10 +8,10 @@ def get_datetime(_datetime):
     return datetime.strptime(_datetime, DATETIME_FORMAT)
 
 
-def get_cycle_time(created_at, accepted_at=None):
+def get_cycle_time(started_at, accepted_at=None):
     _cycle_time = None
     if accepted_at:
-        _cycle_time = get_datetime(accepted_at) - get_datetime(created_at)
+        _cycle_time = get_datetime(accepted_at) - get_datetime(started_at)
 
     return _cycle_time
 
