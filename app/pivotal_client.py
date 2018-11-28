@@ -28,7 +28,7 @@ class PivotalClient:
         self.api_projects = '{}/projects'.format(self.api_root)
         if self.project_id:
             self.api_project = '{}/{}'.format(self.api_projects, self.project_id)
-            self.api_project_iterations = '{}/{}/iterations'.format(self.api_projects, self.project_id)
+            self.api_project_iterations = '{}/{}/iterations{}'.format(self.api_projects, self.project_id, '{}')
             self.api_project_cycle_time_details = '{}/{}/iterations/{}/analytics/cycle_time_details'.format(
                 self.api_projects, self.project_id, '{}')
             self.api_project_iteration = '{}/{}/iterations/{}'.format(self.api_projects, self.project_id, '{}')
@@ -75,8 +75,12 @@ class PivotalClient:
         results = self._get(uri)
         return results
 
-    def get_project_iterations(self):
-        uri = self.api_project_iterations
+    def get_project_iterations(self, offset=1, limit=10):
+        if offset > 0:
+            query_str = "?limit={}&offset={}".format(limit, offset)
+        else:
+            query_str = ""
+        uri = self.api_project_iterations.format(query_str)
         results = self._get(uri)
         return results
 
