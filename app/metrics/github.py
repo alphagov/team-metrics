@@ -4,9 +4,10 @@ from datetime import datetime, timedelta
 from github3 import login
 
 from app import Metrics
+from app.metrics import Base
 
 
-class Github:
+class Github(Base):
     def __init__(self):
         self.gh = login(token=os.environ['TM_GITHUB_PAT'])
 

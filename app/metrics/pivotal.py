@@ -3,13 +3,11 @@ import os
 from math import ceil
 
 from app import Metrics, write_csv_line
-from app.metrics import get_cycle_time, get_datetime, get_process_cycle_efficiency
+from app.metrics import Base, get_cycle_time, get_datetime, get_process_cycle_efficiency
 from app.pivotal_client import ApiError, PivotalClient
 
 
-class Pivotal:
-    DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
+class Pivotal(Base):
     def __init__(self):
         self.pivotal = PivotalClient(os.environ['TM_PIVOTAL_PAT'], project_id=os.environ['TM_PIVOTAL_PROJECT_ID'])
 
@@ -59,9 +57,9 @@ class Pivotal:
 
         metrics = []
         for iteration in self.pivotal.get_project_iterations(offset=iteration_start, limit=num_iterations):
-            _cycle_time = _process_cycle_efficiency = None
+            cycle_time = process_cycle_efficiency = None
 
-            _num_stories_complete = _num_stories_incomplete = 0
+            num_stories_complete = num_stories_incomplete = 0
             try:
                 print("\nIteration: {} - {}".format(iteration['start'], iteration['finish']))
                 for story in iteration['stories']:
@@ -75,42 +73,42 @@ class Pivotal:
                     if not started_at:
                         continue
 
-                    if _cycle_time:
-                        _cycle_time += get_cycle_time(
+                    if cycle_time:
+                        cycle_time += get_cycle_time(
                             started_at, story['accepted_at']
                         )
                     else:
-                        _cycle_time = get_cycle_time(
+                        cycle_time = get_cycle_time(
                             started_at, story['accepted_at']
                         )
                     
-                    print('  cycle_time: {}'.format(_cycle_time))
+                    print('  cycle_time: {}'.format(cycle_time))
 
                     if story.get('accepted_at'):
-                        pce = get_process_cycle_efficiency(_cycle_time, self.get_blocked_time(story['id']))
+                        pce = get_process_cycle_efficiency(cycle_time, self.get_blocked_time(story['id']))
                         print("  process_cycle_efficiency: {}".format(pce))
 
-                        if _process_cycle_efficiency:
-                            _process_cycle_efficiency += pce
+                        if process_cycle_efficiency:
+                            process_cycle_efficiency += pce
                         else:
-                            _process_cycle_efficiency = pce
+                            process_cycle_efficiency = pce
             except ApiError as e:
                 print('api error', e)
 
-            _num_stories_complete = len([s for s in iteration['stories'] if s['current_state'] == 'accepted'])
-            _num_stories_incomplete = len(iteration['stories']) - _num_stories_complete
-            print("\n  Number of accepted stories: {}".format(_num_stories_complete))
-            print("\n  Number of incomplete stories: {}".format(_num_stories_incomplete))
+            num_stories_complete = len([s for s in iteration['stories'] if s['current_state'] == 'accepted'])
+            num_stories_incomplete = len(iteration['stories']) - num_stories_complete
+            print("\n  Number of accepted stories: {}".format(num_stories_complete))
+            print("\n  Number of incomplete stories: {}".format(num_stories_incomplete))
 
             m = Metrics(
                 self.pivotal.project_id,
                 iteration["start"],
                 iteration["finish"],
                 "pivotal",
-                _cycle_time,
-                (_process_cycle_efficiency / _num_stories_complete) if _num_stories_complete else 0,
-                _num_stories_complete,
-                _num_stories_incomplete
+                cycle_time,
+                (process_cycle_efficiency / num_stories_complete) if num_stories_complete else 0,
+                num_stories_complete,
+                num_stories_incomplete
             )
             metrics.append(m)
             write_csv_line(m)

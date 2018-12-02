@@ -5,53 +5,69 @@ from jira import JIRA
 from jira.exceptions import JIRAError
 from jira.resources import GreenHopperResource
 
+from app import Metrics, write_csv_line
+from app.metrics import Base, get_datetime, get_cycle_time, get_process_cycle_efficiency
 
-class Jira(object):
+
+class Jira(Base):
     sprint_info_field_name = ''
 
-    def __init__(self):
+    def __init__(self, project_id=None):
         self.jira = JIRA(
-            basic_auth=(os.environ['TM_USER'], os.environ['TM_JIRA_PAT']),
+            basic_auth=(os.environ['TM_JIRA_USER'], os.environ['TM_JIRA_PAT']),
             server='https://{}.atlassian.net'.format(os.environ['TM_JIRA_HOST']),
             options={'agile_rest_path': GreenHopperResource.AGILE_BASE_REST_PATH}
         )
+        self.project_id = project_id
 
-    def cycle_time(self, fields):
-        print("  cycle time")
-        print("    state: {} - startDate: {} - endDate: {} - completeDate: {}".format(
-            fields['state'],
-            fields['startDate'],
-            fields['endDate'],
-            fields['completeDate'])
-        )
-
-    def process_cycle_efficiency(self, issue):
-        print("  process cycle efficiency")
+    def get_cycle_time(self, issue):
         issue = self.jira.issue(issue.id, expand='changelog')
         changelog = issue.changelog
+        started_at_list = []
+        done_at = None
         for history in changelog.histories:
             for item in history.items:
                 if item.field == 'status':
-                    print('    Date:' + history.created + ' From:' + item.fromString + ' To:' + item.toString)
+                    if item.toString == 'In Progress':
+                        started_at_list.append(history.created)
+                    if item.toString == 'Done':
+                        done_at = history.created
 
-    def get_dict_from_key_value_pair(self, input):
-        kv_matches = re.search(r"\[(.+)\]", input)
-        if not kv_matches:
-            return None
-        kv_string = kv_matches.group(1)
-        try:
-            kv_dict = dict(kv.split("=") for kv in kv_string.split(","))
-            return dict((key, None if value == "<null>" else value) for key, value in kv_dict.items())
-        except ValueError as e:
-            print("###### ", e, input)
-            return None
+        if started_at_list and done_at:
+            started_at_list.sort()
+            return get_cycle_time(started_at_list[0], done_at)
 
-    def get_metrics(self):
-        # # Get all projects viewable by anonymous users.
+    def get_blocked_time(self, issue):
+        issue = self.jira.issue(issue.id, expand='changelog')
+        changelog = issue.changelog
+        blocked_start = []
+        blocked_end = []
+        for history in changelog.histories:
+            for item in history.items:
+                if item.field == 'status':
+                    if item.toString == 'Blocked':
+                        blocked_start.append(history.created)
+                    if item.fromString == "Blocked":
+                        blocked_end.append(history.created)
+
+        if blocked_start and blocked_end:
+            blocked_time = None
+            for i, start in enumerate(blocked_start):
+                end = blocked_end[i]
+                if blocked_time:
+                    blocked_time += get_datetime(end) - get_datetime(start)
+                else:
+                    blocked_time = get_datetime(end) - get_datetime(start)
+
+            return blocked_time
+
+    def get_metrics(self, last_num_weeks=None):
+        metrics = []
         projects = self.jira.projects()
-
         for project in projects:
-            sprints_found = False
+            if self.project_id and project.key != self.project_id:
+                continue
+
             boards = self.jira.boards(projectKeyOrID=project.id)
             for board in boards:
                 print("board:", board)
@@ -65,43 +81,44 @@ class Jira(object):
                         print("\nsprint: {}, {}, {} - {}".format(
                             sprint.id, sprint.name, sprint.raw['startDate'], sprint.raw['endDate'])
                         )
-                        for issue in self.jira.search_issues(
+                        sprint_issues = self.jira.search_issues(
                             'project={} AND SPRINT in ({})'.format(project.id, sprint.id)
-                        ):
-                            # print("*** issue whole: {}".format(issue.raw)); break
+                        )
+                        for issue in sprint_issues:
+                            cycle_time = self.get_cycle_time(issue)
 
-                            if not self.sprint_info_field_name:
-                                for name in dir(issue.fields):
-                                    sprint_info = getattr(issue.fields, name)
-                                    if sprint_info and type(sprint_info) == list and \
-                                        'com.atlassian.greenhopper.service.sprint.Sprint' in sprint_info[0]:
-                                        self.sprint_info_field_name = name
-
-                            if not self.sprint_info_field_name:
+                            if not cycle_time:
                                 continue
 
-                            sprint_info = getattr(issue.fields, self.sprint_info_field_name)
-                            if len(sprint_info) > 1:
-                                print("******** more than one sprint_info field!")
-                                print(sprint_info)
+                            stories_completed += 1
 
-                            cf = sprint_info[0]
-                            fields = self.get_dict_from_key_value_pair(cf)
+                            print("  cycle time: {}".format(cycle_time))
 
-                            if not fields:
-                                print("######## no fields available: ", cf)
-                                continue
+                            print("blocked time: {}".format(self.get_blocked_time(issue)))
 
-                            print("  issue: {} - {}".format(issue.id, issue.key))
-                            self.cycle_time(fields)
-                            self.process_cycle_efficiency(issue)
+                            process_cycle_efficiency = get_process_cycle_efficiency(
+                                cycle_time, self.get_blocked_time(issue))
+                            print("  process cycle efficiency: {}".format(process_cycle_efficiency))
 
-                            if fields['state'] == 'CLOSED':
-                                stories_completed += 1
-                        print("  stories completed: ", str(stories_completed))
+                        stories_incomplete = len(sprint_issues) - stories_completed
+                        print("  issues completed: ", str(stories_completed))
+                        print("  issues incomplete: ", str(stories_incomplete))
+
+                        m = Metrics(
+                            project.key,
+                            sprint.raw['startDate'],
+                            sprint.raw['endDate'],
+                            "jira",
+                            cycle_time,
+                            (process_cycle_efficiency / stories_completed) if stories_completed else 0,
+                            stories_completed,
+                            stories_incomplete
+                        )
+                        metrics.append(m)
+                        write_csv_line(m)
 
                 except JIRAError as e:
-                    # print(e)
                     pass
-            if sprints_found:
-                break
+            if self.project_id:
+                return metrics
+        return metrics

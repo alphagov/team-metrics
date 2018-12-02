@@ -1,8 +1,10 @@
 import os
 from trello import TrelloClient
 
+from app.metrics import Base
 
-class Trello:
+
+class Trello(Base):
 
     def __init__(self):
         self.pat = os.environ['TM_TRELLO_PAT']
