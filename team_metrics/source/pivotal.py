@@ -102,6 +102,7 @@ class Pivotal(Base):
 
             m = Metrics(
                 self.pivotal.project_id,
+                iteration["number"],
                 iteration["start"],
                 iteration["finish"],
                 "pivotal",

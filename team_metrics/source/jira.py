@@ -112,6 +112,7 @@ class Jira(Base):
 
                         m = Metrics(
                             project.key,
+                            sprint.id,
                             sprint.raw['startDate'],
                             sprint.raw['endDate'],
                             "jira",

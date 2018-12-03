@@ -2,8 +2,20 @@ import os
 
 
 class Metrics:
-    def __init__(self, project_id, started_on, ended_on, source, cycle_time, process_cycle_efficiency, num_stories, num_incomplete):
+    def __init__(
+            self,
+            project_id,
+            sprint_id,
+            started_on,
+            ended_on,
+            source,
+            cycle_time,
+            process_cycle_efficiency,
+            num_stories,
+            num_incomplete
+    ):
         self.project_id = project_id
+        self.sprint_id = sprint_id
         self.started_on = started_on
         self.ended_on = ended_on
         self.source = source
@@ -15,6 +27,7 @@ class Metrics:
     def __repr__(self):
         return str({
             'project_id': self.project_id,
+            'sprint_id': self.sprint_id,
             'started_on': self.started_on,
             'ended_on': self.ended_on,
             'source': self.source,
@@ -31,8 +44,9 @@ class Metrics:
         return fmt.format(**d)
 
     def get_csv_line(self):
-        return "{} ,{} ,{} ,{} ,{} ,{} ,{} ,{}\n".format(
+        return "{} ,{} ,{} ,{} ,{} ,{} ,{} ,{} ,{}\n".format(
             self.project_id,
+            self.sprint_id,
             self.started_on,
             self.ended_on,
             self.source,

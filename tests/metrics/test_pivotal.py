@@ -23,6 +23,7 @@ def mock_pivotal_client(
     if iterations == []:
         iterations = [
             {
+                "number": "1",
                 "start": "2018-11-01T12:00:00Z",
                 "finish": "2018-11-14T12:00:00Z",
                 "stories": stories
