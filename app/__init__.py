@@ -12,6 +12,18 @@ class Metrics:
         self.num_stories = num_stories
         self.num_incomplete = num_incomplete
 
+    def __repr__(self):
+        return str({
+            'project_id': self.project_id,
+            'started_on': self.started_on,
+            'ended_on': self.ended_on,
+            'source': self.source,
+            'cycle_time': self.cycle_time,
+            'process_cycle_efficiency': self.process_cycle_efficiency,
+            'num_stories': self.num_stories,
+            'num_incomplete': self.num_incomplete
+        })
+
     def strfdelta(self, tdelta, fmt):
         d = {"days": tdelta.days}
         d["hours"], rem = divmod(tdelta.seconds, 3600)

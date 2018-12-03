@@ -8,26 +8,27 @@ from app.metrics.trello import Trello
 from app.metrics.github import Github
 
 
-def get_metrics_from_tool(choice):
+def get_metrics_tool(choice):
     if choice in ['j', 'a']:
         return Jira('CYB')
-        # jira.get_metrics()
     if choice in ['p', 'a']:
         return Pivotal()
-        # pivotal.get_metrics(last_num_weeks=12)
     if choice in ['t', 'a']:
         return Trello()
-        # trello.get_metrics()
     if choice in ['g', 'a']:
         return Github()
-        # github.get_metrics()
 
 
 def main():
+    def get_metrics(choice):
+        m = get_metrics_tool(choice)
+        for metric in m.get_metrics(last_num_weeks=12):
+            print(metric)
+
     create_csv_header()
+
     if len(sys.argv) > 1:
-        m = get_metrics_from_tool(sys.argv[1])
-        m.get_metrics(last_num_weeks=12)
+        get_metrics(sys.argv[1])
     else:
         while True:
             choice = input("\nCollect team metrics from (j)ira, (p)ivotal, (t)rello, (g)ithub, (a)ll, e(x)it:")
@@ -35,8 +36,7 @@ def main():
             if choice == 'x':
                 exit(0)
             else:
-                m = get_metrics_from_tool(choice)
-                m.get_metrics(last_num_weeks=12)
+                get_metrics(choice)
 
 
 if __name__ == "__main__":
