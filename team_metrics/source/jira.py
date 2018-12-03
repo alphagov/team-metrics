@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import datetime, timedelta
 
 from jira import JIRA
 from jira.exceptions import JIRAError
@@ -75,8 +76,13 @@ class Jira(Base):
                     for sprint in self.jira.sprints(board.id):
                         if sprint.raw['state'] == 'future':
                             continue
-                        sprints_found = True
                         stories_completed = 0
+
+                        if (
+                            last_num_weeks and
+                            sprint.raw['startDate'] < str(datetime.today() - timedelta(weeks=last_num_weeks))
+                        ):
+                            continue
 
                         print("\nsprint: {}, {}, {} - {}".format(
                             sprint.id, sprint.name, sprint.raw['startDate'], sprint.raw['endDate'])

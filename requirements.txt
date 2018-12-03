@@ -1,5 +1,6 @@
 ipython==7.1.1
 filemagic==1.6
+freezegun==0.3.11
 github3.py==1.2.0
 # jira
 requests==2.9.2
