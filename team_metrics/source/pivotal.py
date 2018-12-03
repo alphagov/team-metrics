@@ -2,14 +2,14 @@ from datetime import datetime, timedelta
 import os
 from math import ceil
 
-from app import Metrics, write_csv_line
-from app.metrics import Base, get_cycle_time, get_datetime, get_process_cycle_efficiency
-from app.pivotal_client import ApiError, PivotalClient
+from team_metrics import Metrics
+from team_metrics.source import Base, get_cycle_time, get_datetime, get_process_cycle_efficiency
+from team_metrics.pivotal_client import ApiError, PivotalClient
 
 
 class Pivotal(Base):
-    def __init__(self):
-        self.pivotal = PivotalClient(os.environ['TM_PIVOTAL_PAT'], project_id=os.environ['TM_PIVOTAL_PROJECT_ID'])
+    def __init__(self, project_id=None):
+        self.pivotal = PivotalClient(os.environ['TM_PIVOTAL_PAT'], project_id=project_id)
 
     def get_blocked_time(self, story_id):
         blocked_time = None
@@ -111,5 +111,4 @@ class Pivotal(Base):
                 num_stories_incomplete
             )
             metrics.append(m)
-            write_csv_line(m)
         return metrics

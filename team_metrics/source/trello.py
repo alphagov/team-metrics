@@ -1,7 +1,7 @@
 import os
 from trello import TrelloClient
 
-from app.metrics import Base
+from team_metrics.source import Base
 
 
 class Trello(Base):

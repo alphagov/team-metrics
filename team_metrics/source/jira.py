@@ -5,8 +5,8 @@ from jira import JIRA
 from jira.exceptions import JIRAError
 from jira.resources import GreenHopperResource
 
-from app import Metrics, write_csv_line
-from app.metrics import Base, get_datetime, get_cycle_time, get_process_cycle_efficiency
+from team_metrics import Metrics
+from team_metrics.source import Base, get_datetime, get_cycle_time, get_process_cycle_efficiency
 
 
 class Jira(Base):
@@ -115,7 +115,6 @@ class Jira(Base):
                             stories_incomplete
                         )
                         metrics.append(m)
-                        write_csv_line(m)
 
                 except JIRAError as e:
                     pass

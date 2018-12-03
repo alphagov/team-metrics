@@ -1,5 +1,5 @@
-from app.metrics import get_datetime, get_process_cycle_efficiency
-from app.metrics.jira import Jira
+from team_metrics.source import get_datetime, get_process_cycle_efficiency
+from team_metrics.source.jira import Jira
 
 
 def mock_issue(_histories=None):
@@ -92,7 +92,7 @@ def mock_jira_client(mocker, issue):
         def search_issues(self, *_):
             return [issue]
 
-    mocker.patch("app.metrics.jira.JIRA", MockJiraClient)
+    mocker.patch("team_metrics.source.jira.JIRA", MockJiraClient)
 
 
 def test_get_cycle_time(mocker):
@@ -249,7 +249,6 @@ def test_get_metrics(mocker):
     issue = mock_issue(history)
 
     mock_jira_client(mocker, issue)
-    mock_write_csv_line = mocker.patch("app.metrics.jira.write_csv_line")
 
     j = Jira(project_id='test_project')
     metrics = j.get_metrics()
@@ -257,7 +256,6 @@ def test_get_metrics(mocker):
     assert len(metrics) == 1
     assert metrics[0].cycle_time == get_datetime(history[1]['created']) - get_datetime(history[0]['created'])
     assert metrics[0].process_cycle_efficiency == 1
-    assert mock_write_csv_line.called
 
 
 def test_get_metrics_with_blocker(mocker):
@@ -284,7 +282,6 @@ def test_get_metrics_with_blocker(mocker):
     issue = mock_issue(history)
 
     mock_jira_client(mocker, issue)
-    mocker.patch("app.metrics.jira.write_csv_line")
 
     j = Jira(project_id='test_project')
     metrics = j.get_metrics()
@@ -313,7 +310,6 @@ def test_get_metrics_is_none_if_not_done(mocker):
     issue = mock_issue(history)
 
     mock_jira_client(mocker, issue)
-    mocker.patch("app.metrics.jira.write_csv_line")
 
     j = Jira(project_id='test_project')
     metrics = j.get_metrics()

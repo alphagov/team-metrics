@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import pytest
 
-from app.metrics import get_datetime, get_cycle_time, get_process_cycle_efficiency
+from team_metrics.source import get_datetime, get_cycle_time, get_process_cycle_efficiency
 
 
 def mock_pivotal_client(created_at='2018-11-01T12:00:00Z', resolved=True):

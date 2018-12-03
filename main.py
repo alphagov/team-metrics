@@ -1,18 +1,19 @@
 #!/usr/bin/env python
+import os
 import sys
 
-from app import create_csv_header
-from app.metrics.jira import Jira
-from app.metrics.pivotal import Pivotal
-from app.metrics.trello import Trello
-from app.metrics.github import Github
+from team_metrics import create_csv_header, write_csv_line
+from team_metrics.source.jira import Jira
+from team_metrics.source.pivotal import Pivotal
+from team_metrics.source.trello import Trello
+from team_metrics.source.github import Github
 
 
 def get_metrics_tool(choice):
     if choice in ['j', 'a']:
-        return Jira('CYB')
+        return Jira(os.environ['TM_JIRA_PROJECT'])
     if choice in ['p', 'a']:
-        return Pivotal()
+        return Pivotal(os.environ['TM_PIVOTAL_PROJECT_ID'])
     if choice in ['t', 'a']:
         return Trello()
     if choice in ['g', 'a']:
@@ -23,6 +24,7 @@ def main():
     def get_metrics(choice):
         m = get_metrics_tool(choice)
         for metric in m.get_metrics(last_num_weeks=12):
+            write_csv_line(metric)
             print(metric)
 
     create_csv_header()

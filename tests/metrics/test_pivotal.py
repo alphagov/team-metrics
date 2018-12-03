@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 import pytest
 
-from app.metrics import get_datetime, get_process_cycle_efficiency
-from app.metrics.pivotal import Pivotal
+from team_metrics.source import get_datetime, get_process_cycle_efficiency
+from team_metrics.source.pivotal import Pivotal
 
 
 def mock_pivotal_client(
@@ -74,7 +74,7 @@ def mock_pivotal_client(
         def get_story_activities(self, story_id):
             return story_activities.get(story_id)
 
-    mocker.patch("app.metrics.pivotal.PivotalClient", MockPivotalClient)
+    mocker.patch("team_metrics.source.pivotal.PivotalClient", MockPivotalClient)
 
 
 def test_get_blocked_time(mocker):
@@ -137,7 +137,6 @@ def test_get_metrics(mocker):
     }
 
     mock_pivotal_client(mocker, stories=[story])
-    mock_write_csv_line = mocker.patch("app.metrics.pivotal.write_csv_line")
 
     p = Pivotal()
     metrics = p.get_metrics()
@@ -145,7 +144,6 @@ def test_get_metrics(mocker):
     assert len(metrics) == 1
     assert metrics[0].cycle_time == get_datetime(story_accepted) - get_datetime(story_started)
     assert metrics[0].process_cycle_efficiency == 1
-    assert mock_write_csv_line.called
 
 
 def test_get_metrics_last_2_weeks(mocker):
@@ -225,7 +223,6 @@ def test_get_metrics_last_2_weeks(mocker):
     ]
 
     mock_pivotal_client(mocker, iterations=iterations, story_activities=story_activities)
-    mock_write_csv_line = mocker.patch("app.metrics.pivotal.write_csv_line")
 
     p = Pivotal()
     metrics = p.get_metrics(last_num_weeks=2)
@@ -241,7 +238,6 @@ def test_get_metrics_last_2_weeks(mocker):
         get_datetime(story_activities[2][0]['changes'][0]['new_values']['updated_at'])
     )
     assert metrics[0].process_cycle_efficiency == 1
-    assert mock_write_csv_line.called
 
 
 def test_get_metrics_with_story_blocker(mocker):
@@ -267,7 +263,6 @@ def test_get_metrics_with_story_blocker(mocker):
         mocker,
         stories=[story], story_blockers=[blocker]
     )
-    mock_write_csv_line = mocker.patch("app.metrics.pivotal.write_csv_line")
 
     p = Pivotal()
     metrics = p.get_metrics()
@@ -278,7 +273,6 @@ def test_get_metrics_with_story_blocker(mocker):
         (get_datetime(blocked_updated) - get_datetime(blocked_start)) / metrics[0].cycle_time
     )
     assert metrics[0].num_incomplete == 0
-    assert mock_write_csv_line.called
 
 
 def test_get_metrics_with_story_blocker_unresolved(mocker):
@@ -309,7 +303,6 @@ def test_get_metrics_with_story_blocker_unresolved(mocker):
         mocker, 
         stories=stories, story_blockers=[blocker]
     )
-    mock_write_csv_line = mocker.patch("app.metrics.pivotal.write_csv_line")
 
     p = Pivotal()
     metrics = p.get_metrics()
@@ -318,4 +311,3 @@ def test_get_metrics_with_story_blocker_unresolved(mocker):
     assert metrics[0].cycle_time == get_datetime(story_accepted) - get_datetime(story_started)
     assert metrics[0].process_cycle_efficiency == 1
     assert metrics[0].num_incomplete == 1
-    assert mock_write_csv_line.called
