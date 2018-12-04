@@ -78,9 +78,10 @@ class Jira(Base):
                             continue
                         stories_completed = 0
 
-                        if (
-                            last_num_weeks and
-                            sprint.raw['startDate'] < str(datetime.today() - timedelta(weeks=last_num_weeks))
+                        if (last_num_weeks and (
+                                sprint.raw['startDate'] <
+                                str(datetime.today() - timedelta(weeks=last_num_weeks) - timedelta(weeks=2)) or 
+                                sprint.raw['startDate'] > str(datetime.today() - timedelta(weeks=2)))
                         ):
                             continue
 

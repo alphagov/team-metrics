@@ -60,6 +60,6 @@ def test_dump_json():
         dump_json('test', [m])
         mock_file.assert_called_with("test.json", 'w')
         mock_file().write.assert_called_once_with(
-            '[{"project_id": "1", "sprint_id": "test_sprint", "started_on": "2018-11-01T12:00", '+
+            '[{"project_id": "1", "sprint_id": "test_sprint", "started_on": "2018-11-01T12:00", ' +
             '"ended_on": "2018-11-08T12:00", "source": "jira", "cycle_time": "1 days 0:0:0", '
             '"process_cycle_efficiency": "1", "num_stories": 1, "num_incomplete": 0}]')
