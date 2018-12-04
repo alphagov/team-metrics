@@ -2,7 +2,7 @@
 import os
 import sys
 
-from team_metrics import create_csv_header, write_csv_line
+from team_metrics import create_csv_header, write_csv_line, dump_json
 from team_metrics.source.jira import Jira
 from team_metrics.source.pivotal import Pivotal
 from team_metrics.source.trello import Trello
@@ -11,21 +11,22 @@ from team_metrics.source.github import Github
 
 def get_metrics_tool(choice):
     if choice in ['j', 'a']:
-        return Jira(os.environ['TM_JIRA_PROJECT'])
+        return Jira(os.environ['TM_JIRA_PROJECT']), os.environ['TM_JIRA_PROJECT']
     if choice in ['p', 'a']:
-        return Pivotal(os.environ['TM_PIVOTAL_PROJECT_ID'])
+        return Pivotal(os.environ['TM_PIVOTAL_PROJECT_ID']), os.environ['TM_PIVOTAL_PROJECT_ID']
     if choice in ['t', 'a']:
-        return Trello()
+        return Trello(), None
     if choice in ['g', 'a']:
-        return Github()
+        return Github(), None
 
 
 def main():
     def get_metrics(choice):
-        m = get_metrics_tool(choice)
-        for metric in m.get_metrics(last_num_weeks=12):
+        m, key = get_metrics_tool(choice)
+        metrics = m.get_metrics(last_num_weeks=12)
+        for metric in metrics:
             write_csv_line(metric)
-            print(metric)
+        dump_json(key, metrics)
 
     create_csv_header()
 

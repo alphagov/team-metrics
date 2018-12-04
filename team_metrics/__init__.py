@@ -1,5 +1,6 @@
+import json
 import os
-
+from datetime import timedelta
 
 class Metrics:
     def __init__(
@@ -66,3 +67,16 @@ def create_csv_header():
 def write_csv_line(metrics):
     with open(os.environ['TM_CSV_FILENAME'], 'a') as csv:
         csv.writelines(metrics.get_csv_line())
+
+
+def dump_json(filename, metrics):
+    def to_dict(obj):
+        if type(obj) == timedelta:
+            hours, remainder = divmod(obj.seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            return "{} days {}:{}:{}".format(obj.days, hours, minutes, seconds)
+        else:
+            return obj.__dict__
+
+    with open('{}.json'.format(filename), 'w') as jsonfile:
+        jsonfile.write(json.dumps(metrics, default=to_dict))
