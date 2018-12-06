@@ -76,14 +76,17 @@ class Jira(Base):
                     for sprint in self.jira.sprints(board.id):
                         if sprint.raw['state'] == 'future':
                             continue
-                        stories_completed = 0
 
+                        # sprints before
                         if (last_num_weeks and (
                                 sprint.raw['startDate'] <
                                 str(datetime.today() - timedelta(weeks=last_num_weeks) - timedelta(weeks=2)) or 
                                 sprint.raw['startDate'] > str(datetime.today() - timedelta(weeks=2)))
                         ):
                             continue
+
+                        stories_completed = 0
+                        cycle_time = process_cycle_efficiency = None
 
                         print("\nsprint: {}, {}, {} - {}".format(
                             sprint.id, sprint.name, sprint.raw['startDate'], sprint.raw['endDate'])
@@ -92,20 +95,29 @@ class Jira(Base):
                             'project={} AND SPRINT in ({})'.format(project.id, sprint.id)
                         )
                         for issue in sprint_issues:
-                            cycle_time = self.get_cycle_time(issue)
-
-                            if not cycle_time:
+                            _cycle_time = self.get_cycle_time(issue)
+                            if not _cycle_time:
                                 continue
+
+                            if cycle_time:
+                                cycle_time += _cycle_time
+                            else:
+                                cycle_time = _cycle_time
 
                             stories_completed += 1
 
-                            print("  cycle time: {}".format(cycle_time))
+                            print("  cycle time: {}".format(_cycle_time))
 
                             print("blocked time: {}".format(self.get_blocked_time(issue)))
 
-                            process_cycle_efficiency = get_process_cycle_efficiency(
-                                cycle_time, self.get_blocked_time(issue))
-                            print("  process cycle efficiency: {}".format(process_cycle_efficiency))
+                            _process_cycle_efficiency = get_process_cycle_efficiency(
+                                    _cycle_time, self.get_blocked_time(issue))
+                            if process_cycle_efficiency:
+                                process_cycle_efficiency += _process_cycle_efficiency
+                            else:
+                                process_cycle_efficiency = _process_cycle_efficiency
+
+                            print("  process cycle efficiency: {}".format(_process_cycle_efficiency))
 
                         stories_incomplete = len(sprint_issues) - stories_completed
                         print("  issues completed: ", str(stories_completed))
@@ -117,7 +129,7 @@ class Jira(Base):
                             sprint.raw['startDate'],
                             sprint.raw['endDate'],
                             "jira",
-                            cycle_time,
+                            cycle_time / stories_completed,
                             (process_cycle_efficiency / stories_completed) if stories_completed else 0,
                             stories_completed,
                             stories_incomplete

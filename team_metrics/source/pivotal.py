@@ -73,25 +73,37 @@ class Pivotal(Base):
                     if not started_at:
                         continue
 
+                    _cycle_time = get_cycle_time(
+                        started_at, story['accepted_at']
+                    )
+
+                    if not _cycle_time:
+                        continue
+
                     if cycle_time:
-                        cycle_time += get_cycle_time(
-                            started_at, story['accepted_at']
-                        )
+                        cycle_time += _cycle_time
                     else:
-                        cycle_time = get_cycle_time(
-                            started_at, story['accepted_at']
-                        )
+                        cycle_time = _cycle_time
                     
-                    print('  cycle_time: {}'.format(cycle_time))
+                    print('  cycle_time: {}'.format(_cycle_time))
 
                     if story.get('accepted_at'):
-                        pce = get_process_cycle_efficiency(cycle_time, self.get_blocked_time(story['id']))
-                        print("  process_cycle_efficiency: {}".format(pce))
+                        _process_cycle_efficiency = get_process_cycle_efficiency(
+                            _cycle_time, self.get_blocked_time(story['id']))
+                        if _process_cycle_efficiency < 0:
+                            # this happens when a story gets started, has blockers,
+                            #   so gets unstarted in a previous iteration
+                            #   then restarted in this iteration and accepted
+                            # we need to decide whether we include the cycle time of a previous iteration?
+                            # also should teams unstart and then restart stories in a different iteration
+                            continue
+                        
+                        print("  process_cycle_efficiency: {}".format(_process_cycle_efficiency))
 
                         if process_cycle_efficiency:
-                            process_cycle_efficiency += pce
+                            process_cycle_efficiency += _process_cycle_efficiency
                         else:
-                            process_cycle_efficiency = pce
+                            process_cycle_efficiency = _process_cycle_efficiency
             except ApiError as e:
                 print('api error', e)
 
@@ -106,7 +118,7 @@ class Pivotal(Base):
                 iteration["start"],
                 iteration["finish"],
                 "pivotal",
-                cycle_time,
+                cycle_time / num_stories_complete,
                 (process_cycle_efficiency / num_stories_complete) if num_stories_complete else 0,
                 num_stories_complete,
                 num_stories_incomplete
