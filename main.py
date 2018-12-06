@@ -23,12 +23,13 @@ def get_metrics_tool(choice):
 def main():
     def get_metrics(choice):
         m, key = get_metrics_tool(choice)
+
+        create_csv_header(key)
+
         metrics = m.get_metrics(last_num_weeks=12)
         for metric in metrics:
-            write_csv_line(metric)
+            write_csv_line(key, metric)
         dump_json(key, metrics)
-
-    create_csv_header()
 
     if len(sys.argv) > 1:
         get_metrics(sys.argv[1])

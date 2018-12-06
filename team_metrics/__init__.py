@@ -59,14 +59,14 @@ class Metrics:
         )
 
 
-def create_csv_header():
-    with open(os.environ['TM_CSV_FILENAME'], 'w') as csv:
+def create_csv_header(filename):
+    with open('data/{}.csv'.format(filename), 'w') as csv:
         csv.writelines(
             'Project id, Started on, Ended on, Source, Cycle time, Process cycle efficiency, Number of stories, Incomplete stories\n')
 
 
-def write_csv_line(metrics):
-    with open(os.environ['TM_CSV_FILENAME'], 'a') as csv:
+def write_csv_line(filename, metrics):
+    with open('data/{}.csv'.format(filename), 'a') as csv:
         csv.writelines(metrics.get_csv_line())
 
 
@@ -79,5 +79,5 @@ def dump_json(filename, metrics):
         else:
             return obj.__dict__
 
-    with open('{}.json'.format(filename), 'w') as jsonfile:
+    with open('data/{}.json'.format(filename), 'w') as jsonfile:
         jsonfile.write(json.dumps(metrics, default=to_dict))
