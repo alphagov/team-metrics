@@ -365,5 +365,5 @@ def test_get_metrics_is_none_if_not_done(mocker):
     metrics = j.get_metrics()
 
     assert len(metrics) == 1
-    assert metrics[0].num_stories == 0
+    assert metrics[0].num_completed == 0
     assert metrics[0].num_incomplete == 1

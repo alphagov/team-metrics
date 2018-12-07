@@ -3,6 +3,7 @@ import os
 import sys
 
 from team_metrics import create_csv_header, write_csv_line, dump_json
+from team_metrics import Metrics_DB
 from team_metrics.source.jira import Jira
 from team_metrics.source.pivotal import Pivotal
 from team_metrics.source.trello import Trello
@@ -21,6 +22,8 @@ def get_metrics_tool(choice):
 
 
 def main():
+    db = Metrics_DB()
+
     def get_metrics(choice):
         m, key = get_metrics_tool(choice)
 

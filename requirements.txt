@@ -7,9 +7,11 @@ requests>=2.20.0
 requests-oauthlib==1.0.0
 requests-kerberos==0.12.0
 simplejson==3.16.0
+psycopg2-binary==2.7.5
 py-trello==0.13.0
 pytest==4.0.0
 pytest-mock==1.10.0
+SQLAlchemy==1.2.14
 
 ### projectKeyOrID is not available as an argument for jira.boards yet as it has not been tagged in the release
 ### so using master from github instead
