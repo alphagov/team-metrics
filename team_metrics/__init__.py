@@ -52,7 +52,10 @@ class Metrics:
             self.started_on,
             self.ended_on,
             self.source,
-            self.strfdelta(self.cycle_time, "{days} days {hours:02d}:{minutes:02d}:{seconds:02d}") if self.cycle_time else "0",
+            self.strfdelta(
+                self.cycle_time,
+                "{days} days {hours:02d}:{minutes:02d}:{seconds:02d}"
+            ) if self.cycle_time else "0",
             self.process_cycle_efficiency,
             self.num_stories,
             self.num_incomplete
@@ -62,7 +65,9 @@ class Metrics:
 def create_csv_header(filename):
     with open('data/{}.csv'.format(filename), 'w') as csv:
         csv.writelines(
-            'Project id, Started on, Ended on, Source, Cycle time, Process cycle efficiency, Number of stories, Incomplete stories\n')
+            "Project id, Started on, Ended on, Source, Cycle time, " +
+            "Process cycle efficiency, Number of stories, Incomplete stories\n"
+        )
 
 
 def write_csv_line(filename, metrics):
