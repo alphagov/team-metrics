@@ -58,7 +58,7 @@ def test_dump_json():
     from unittest.mock import patch, mock_open
     with patch("builtins.open", mock_open()) as mock_file:
         dump_json('test', [m])
-        mock_file.assert_called_with("test.json", 'w')
+        mock_file.assert_called_with("data/test.json", 'w')
         mock_file().write.assert_called_once_with(
             '[{"project_id": "1", "sprint_id": "test_sprint", "started_on": "2018-11-01T12:00", ' +
             '"ended_on": "2018-11-08T12:00", "source": "jira", "cycle_time": "1 days 0:0:0", '

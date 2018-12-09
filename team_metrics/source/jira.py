@@ -129,7 +129,7 @@ class Jira(Base):
                             sprint.raw['startDate'],
                             sprint.raw['endDate'],
                             "jira",
-                            cycle_time / stories_completed,
+                            cycle_time / stories_completed if cycle_time else None,
                             (process_cycle_efficiency / stories_completed) if stories_completed else 0,
                             stories_completed,
                             stories_incomplete

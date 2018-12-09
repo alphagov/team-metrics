@@ -228,16 +228,18 @@ def test_get_metrics_last_2_weeks(mocker):
     p = Pivotal()
     metrics = p.get_metrics(last_num_weeks=2)
 
-    assert len(metrics) == 2
-    assert metrics[0].started_on == iterations[0]['start']
-    assert metrics[0].ended_on == iterations[0]['finish']
-    assert metrics[0].cycle_time == (
+    cycle_time = (
         get_datetime(iterations[0]['stories'][0]['accepted_at']) -
         get_datetime(story_activities[1][0]['changes'][0]['new_values']['updated_at'])
     ) + (
         get_datetime(iterations[0]['stories'][1]['accepted_at']) -
         get_datetime(story_activities[2][0]['changes'][0]['new_values']['updated_at'])
     )
+
+    assert len(metrics) == 2
+    assert metrics[0].started_on == iterations[0]['start']
+    assert metrics[0].ended_on == iterations[0]['finish']
+    assert metrics[0].cycle_time == cycle_time / metrics[0].num_completed
     assert metrics[0].process_cycle_efficiency == 1
 
 
