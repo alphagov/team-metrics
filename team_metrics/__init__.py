@@ -3,36 +3,32 @@ import os
 import uuid
 from datetime import timedelta
 
-from sqlalchemy import create_engine, Column, Float, Integer, String, DateTime
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from team_metrics.models import TeamMetric
-
-DeclarativeBase = declarative_base()
+from team_metrics.config import SQLALCHEMY_DATABASE_URI
 
 
 class Metrics_DB:
 
     def __init__(self):
-        SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
         engine = create_engine(SQLALCHEMY_DATABASE_URI)
-        DeclarativeBase.metadata.create_all(engine)
         self.Session = sessionmaker(bind=engine)
 
     def save(self, obj):
         session = self.Session()
-        tm = TeamMetric(**obj)
 
         try:
-            session.add(tm)
+            session.add(obj)
             session.commit()
         except:
             session.rollback()
             raise
         finally:
             session.close()
+
+
+db = Metrics_DB()
 
 
 class Metrics:

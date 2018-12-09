@@ -1,3 +1,4 @@
+alembic==1.0.3
 ipython==7.1.1
 filemagic==1.6
 freezegun==0.3.11
