@@ -25,12 +25,14 @@ def register_blueprint(application):
     from app.routes.paas_team import paas_team_blueprint
     from app.routes.re_programme import re_programme_blueprint
     from app.routes.techops_team import techop_team_blueprint
+    from app.routes.assets import assets_blueprint
 
     application.register_blueprint(index_blueprint)
     application.register_blueprint(cyber_team_blueprint)
     application.register_blueprint(paas_team_blueprint)
     application.register_blueprint(re_programme_blueprint)
     application.register_blueprint(techop_team_blueprint)
+    application.register_blueprint(assets_blueprint)
 
 
 class Metrics:

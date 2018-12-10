@@ -1,5 +1,4 @@
 from os import path
-from flask import Blueprint
 
 from jinja2 import select_autoescape, ChoiceLoader, FileSystemLoader, Environment
 
