@@ -7,15 +7,19 @@ if [ ! -d node_modules ]; then
     ./install-frontend-assets.sh
 fi
 
-if [ ! -d venv ]; then
-    echo "====> did not detect virtualenv, installing..."
-    # use pip3 to install virtualenv, and use pip later because it's the right one at that point
-    pip3 install virtualenv
-    virtualenv -p /usr/local/bin/python3.7 venv
-    source venv/bin/activate
-    pip install -r requirements.txt
+if [ -z "$VIRTUAL_ENV" ]; then
+    if [ ! -d venv ]; then
+        echo "====> did not detect virtualenv, installing..."
+        # use pip3 to install virtualenv, and use pip later because it's the right one at that point
+        pip3 install virtualenv
+        virtualenv -p /usr/local/bin/python3.7 venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+    else
+        source venv/bin/activate
+    fi
 else
-    source venv/bin/activate
+    pip install -r requirements.txt
 fi
 
 echo "====> running webpack"
