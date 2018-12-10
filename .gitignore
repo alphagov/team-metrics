@@ -108,6 +108,5 @@ venv.bak/
 .idea
 data/
 node_modules/
-static/
-
+app/static/
 environment.sh
