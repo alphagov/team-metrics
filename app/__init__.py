@@ -1,6 +1,36 @@
 import json
 import os
+import uuid
 from datetime import timedelta
+
+from flask import Flask
+
+from app.metrics_db import Metrics_DB
+
+db = Metrics_DB()
+application = Flask('app')
+
+
+def create_app():
+    db.init()
+
+    register_blueprint(application)
+
+    return application
+
+
+def register_blueprint(application):
+    from app.routes.index import index_blueprint
+    from app.routes.cyber_team import cyber_team_blueprint
+    from app.routes.paas_team import paas_team_blueprint
+    from app.routes.re_programme import re_programme_blueprint
+    from app.routes.techops_team import techop_team_blueprint
+
+    application.register_blueprint(index_blueprint)
+    application.register_blueprint(cyber_team_blueprint)
+    application.register_blueprint(paas_team_blueprint)
+    application.register_blueprint(re_programme_blueprint)
+    application.register_blueprint(techop_team_blueprint)
 
 
 class Metrics:
@@ -13,7 +43,7 @@ class Metrics:
             source,
             cycle_time,
             process_cycle_efficiency,
-            num_stories,
+            num_completed,
             num_incomplete
     ):
         self.project_id = project_id
@@ -23,7 +53,7 @@ class Metrics:
         self.source = source
         self.cycle_time = cycle_time
         self.process_cycle_efficiency = process_cycle_efficiency
-        self.num_stories = num_stories
+        self.num_completed = num_completed
         self.num_incomplete = num_incomplete
 
     def __repr__(self):
@@ -35,7 +65,7 @@ class Metrics:
             'source': self.source,
             'cycle_time': self.cycle_time,
             'process_cycle_efficiency': self.process_cycle_efficiency,
-            'num_stories': self.num_stories,
+            'num_completed': self.num_completed,
             'num_incomplete': self.num_incomplete
         })
 
@@ -57,7 +87,7 @@ class Metrics:
                 "{days} days {hours:02d}:{minutes:02d}:{seconds:02d}"
             ) if self.cycle_time else "0",
             self.process_cycle_efficiency,
-            self.num_stories,
+            self.num_completed,
             self.num_incomplete
         )
 

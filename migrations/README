@@ -1,0 +1,11 @@
+## Inital alembic setup in alembic.ini
+
+sqlalchemy.url = <database url>
+
+## Generate revision after changes to data model
+
+alembic revision --autogenerate
+
+## Upgrade to latest revision
+
+alembic upgrade head

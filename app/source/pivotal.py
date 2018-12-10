@@ -2,9 +2,9 @@ from datetime import datetime, timedelta
 import os
 from math import ceil
 
-from team_metrics import Metrics
-from team_metrics.source import Base, get_cycle_time, get_datetime, get_process_cycle_efficiency
-from team_metrics.pivotal_client import ApiError, PivotalClient
+from app import Metrics
+from app.source import Base, get_cycle_time, get_datetime, get_process_cycle_efficiency
+from app.pivotal_client import ApiError, PivotalClient
 
 
 class Pivotal(Base):

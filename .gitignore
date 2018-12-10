@@ -105,6 +105,8 @@ venv.bak/
 
 # local
 .DS_Store
-environment.sh
 .idea
-data
+data/
+node_modules/
+app/static/
+environment.sh

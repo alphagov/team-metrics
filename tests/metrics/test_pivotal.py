@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 import pytest
 
-from team_metrics.source import get_datetime, get_process_cycle_efficiency
-from team_metrics.source.pivotal import Pivotal
+from app.source import get_datetime, get_process_cycle_efficiency
+from app.source.pivotal import Pivotal
 
 
 def mock_pivotal_client(
@@ -75,7 +75,7 @@ def mock_pivotal_client(
         def get_story_activities(self, story_id):
             return story_activities.get(story_id)
 
-    mocker.patch("team_metrics.source.pivotal.PivotalClient", MockPivotalClient)
+    mocker.patch("app.source.pivotal.PivotalClient", MockPivotalClient)
 
 
 def test_get_blocked_time(mocker):

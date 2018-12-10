@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 
 from github3 import login
 
-from team_metrics import Metrics
-from team_metrics.source import Base
+from app import Metrics
+from app.source import Base
 
 
 class Github(Base):

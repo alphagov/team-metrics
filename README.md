@@ -23,10 +23,25 @@ export TM_TRELLO_TOKEN= # Click Token on page - https://trello.com/app-key
 export TM_TRELLO_BOARD_ID= # Get https://trello.com/b/<board id>
 
 export TM_GITHUB_PAT= # Token generated from https://github.com/settings/tokens
+
+export SQLALCHEMY_DATABASE_URI= # <database type, eg postgres>://<host, eg localhost>:<port, eg 5432>/<database, eg team_metrics>
 ```
 
-## Running
+## Running the frontend
 
-`./main.py`
+```
+source environment.sh
+
+./startup.sh
+
+```
+
+## Running the team metrics CLI
+
+```
+source environment.sh
+
+./main.py
+```
 
 Follow instructions to see team metrics from delivery tools
