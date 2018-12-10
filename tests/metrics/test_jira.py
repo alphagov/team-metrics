@@ -1,7 +1,7 @@
 from freezegun import freeze_time
 
-from team_metrics.source import get_datetime, get_process_cycle_efficiency
-from team_metrics.source.jira import Jira
+from app.source import get_datetime, get_process_cycle_efficiency
+from app.source.jira import Jira
 
 
 def mock_issue(_histories=None):
@@ -94,7 +94,7 @@ def mock_jira_client(mocker, issue):
         def search_issues(self, *_):
             return [issue]
 
-    mocker.patch("team_metrics.source.jira.JIRA", MockJiraClient)
+    mocker.patch("app.source.jira.JIRA", MockJiraClient)
 
 
 def test_get_cycle_time(mocker):

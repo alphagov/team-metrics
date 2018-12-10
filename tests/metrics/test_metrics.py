@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 import pytest
 
-from team_metrics import Metrics, dump_json
-from team_metrics.source import (
+from app import Metrics, dump_json
+from app.source import (
     get_datetime, get_cycle_time, get_process_cycle_efficiency
 )
 

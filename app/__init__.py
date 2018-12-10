@@ -3,32 +3,34 @@ import os
 import uuid
 from datetime import timedelta
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from flask import _request_ctx_stack, request, g, jsonify
+from time import monotonic
 
-from team_metrics.config import SQLALCHEMY_DATABASE_URI
-
-
-class Metrics_DB:
-
-    def __init__(self):
-        engine = create_engine(SQLALCHEMY_DATABASE_URI)
-        self.Session = sessionmaker(bind=engine)
-
-    def save(self, obj):
-        session = self.Session()
-
-        try:
-            session.add(obj)
-            session.commit()
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
+from app.metrics_db import Metrics_DB
 
 db = Metrics_DB()
+
+
+def create_app(application):
+    db.init()
+
+    register_blueprint(application)
+
+    return application
+
+
+def register_blueprint(application):
+    from app.routes.index import index_blueprint
+    from app.routes.cyber_team import cyber_team_blueprint
+    from app.routes.paas_team import paas_team_blueprint
+    from app.routes.re_programme import re_programme_blueprint
+    from app.routes.techops_team import techop_team_blueprint
+
+    application.register_blueprint(index_blueprint)
+    application.register_blueprint(cyber_team_blueprint)
+    application.register_blueprint(paas_team_blueprint)
+    application.register_blueprint(re_programme_blueprint)
+    application.register_blueprint(techop_team_blueprint)
 
 
 class Metrics:

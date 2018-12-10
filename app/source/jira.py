@@ -6,8 +6,8 @@ from jira import JIRA
 from jira.exceptions import JIRAError
 from jira.resources import GreenHopperResource
 
-from team_metrics import Metrics
-from team_metrics.source import Base, get_datetime, get_cycle_time, get_process_cycle_efficiency
+from app import Metrics
+from app.source import Base, get_datetime, get_cycle_time, get_process_cycle_efficiency
 
 
 class Jira(Base):

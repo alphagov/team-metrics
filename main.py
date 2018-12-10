@@ -2,12 +2,12 @@
 import os
 import sys
 
-from team_metrics import create_csv_header, write_csv_line, dump_json, db
-from team_metrics.daos.dao_team_metric import dao_add_sprint
-from team_metrics.source.jira import Jira
-from team_metrics.source.pivotal import Pivotal
-from team_metrics.source.trello import Trello
-from team_metrics.source.github import Github
+from app import create_csv_header, write_csv_line, dump_json, db
+from app.daos.dao_team_metric import dao_add_sprint
+from app.source.jira import Jira
+from app.source.pivotal import Pivotal
+from app.source.trello import Trello
+from app.source.github import Github
 
 
 def get_metrics_tool(choice):
@@ -28,6 +28,8 @@ def main():
         create_csv_header(key)
 
         metrics = m.get_metrics(last_num_weeks=12)
+        db.init()
+
         for metric in metrics:
             write_csv_line(key, metric)
             dao_add_sprint(metric)

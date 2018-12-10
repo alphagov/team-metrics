@@ -1,0 +1,10 @@
+<!doctype html>
+<title>Hello!</title>
+<h1>{{ message }}</h1>
+{% if path %}
+<h2>Path: /{{ path }}!</h2>
+{% else %}
+<h2>:thinking: no path!</h2>
+
+<p></p><a href="/secure">Access SECURE area</a>
+{% endif %}

@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+        {% for breadcrumb in breadcrumbs %}
+            {% if not loop.last %}
+                <li class="govuk-breadcrumbs__list-item">
+                    <a class="govuk-breadcrumbs__link" href="{{ breadcrumb['link'] }}">{{ breadcrumb['name'] }}</a>
+                </li>
+            {% else %}
+                <li class="govuk-breadcrumbs__list-item" aria-current="page">{{ breadcrumb['name'] }}</li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</div>
+
+<h1 class="govuk-heading-xl">{{ team['name'] }}</h1>
+
+<details class="govuk-details">
+    <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+      About {{ team['name'] }}
+    </span>
+    </summary>
+    <div class="govuk-details__text">
+        {{ team['details'] }}
+    </div>
+</details>
+
+<table class="govuk-table">
+    <!--    <caption class="govuk-table__caption">RE Traceability Team</caption> -->
+    <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">
+            {% if team['has_subteams'] == 'true' %}
+                Aggregated
+            {% endif %}
+            Metrics
+        </th>
+        {% for metric in metrics %}
+        <th class="govuk-table__header" scope="col">Q3 2018-19: {{ metric.started_on[:10] }} - {{ metric.ended_on[:10] }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+    <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="row">Cycle Time (source: {{ metrics[0].source }})</th>
+        {% for metric in metrics %}
+        <td class="govuk-table__cell">{{ metric.cycle_time }}</td>
+        {% endfor %}
+    </tr>
+    <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="row">Process Cycle Efficiency (source: {{ metrics[0].source }})</th>
+        {% for metric in metrics %}
+        <td class="govuk-table__cell">
+            {% if metric.process_cycle_efficiency is string %}
+                {{ metric.process_cycle_efficiency }}
+            {% else %}
+                {{ '%0.2f' % (metric.process_cycle_efficiency * 100)  }}
+            {% endif %}
+        </td>
+        {% endfor %}
+    </tr>
+    <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="row">Number Of Stories Completed (source: {{ metrics[0].source }})</th>
+        {% for metric in metrics %}
+        <td class="govuk-table__cell">{{ metric.num_stories }}</td>
+        {% endfor %}
+    </tr>
+    <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="row">Number Of Stories Incomplete (source: {{ metrics[0].source }})</th>
+        {% for metric in metrics %}
+        <td class="govuk-table__cell">{{ metric.num_incomplete }}</td>
+        {% endfor %}
+    </tr>
+    <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="row">Number Of People Days</th>
+        {% for i in range(metrics|length) %}
+        <td class="govuk-table__cell">-</td>
+        {% endfor %}
+    </tr>
+    <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="row">Mean Time To Recovery (MTTR)</th>
+        {% for i in range(metrics|length) %}
+        <td class="govuk-table__cell">-</td>
+        {% endfor %}
+    </tr>
+    <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="row">Number Of Releases</th>
+        {% for i in range(metrics|length) %}
+        <td class="govuk-table__cell">-</td>
+        {% endfor %}
+    </tr>
+    </tbody>
+</table>
+
+<a href="#" role="button" draggable="false" class="govuk-button govuk-button--start">Explore</a>
+
+{% if team['has_subteams'] == 'true' %}
+<div><h1 class="govuk-heading-l">Sub Teams</h1></div>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        {% for subteam in subteams %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-one-quarter">
+                    <p>
+                    {% if subteam['has_subteams'] == 'true' %}
+                        <strong>
+                    {% endif %}
+                        <a href="{{ subteam['link'] }}" class="govuk-link">{{ subteam['name'] }}</a>
+                    {% if subteam['has_subteams'] == 'true' %}
+                        </strong>
+                    {% endif %}
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

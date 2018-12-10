@@ -2,6 +2,8 @@ import os
 import pytest
 import subprocess
 
+from flask import Flask
+
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -13,14 +15,14 @@ TEST_DATABASE_URI = 'postgresql://localhost/test_team_metrics'
 
 @pytest.fixture(scope='session')
 def engine():
-    return create_engine(TEST_DATABASE_URI)
-    # yield engine
-    # engine.dispose()
+    engine = create_engine(TEST_DATABASE_URI)
+    yield engine
+    engine.dispose()
 
 
 @pytest.yield_fixture(scope='session')
 def tables(engine):
-    from team_metrics.models import Base
+    from app.models import Base
 
     try:
         import os
@@ -50,7 +52,7 @@ def dbsession(mocker, os_environ, engine, tables):
     # use the connection with the already started transaction
     session = Session(bind=connection)
 
-    mocker.patch('team_metrics.db.Session', return_value=session)
+    mocker.patch('app.db.Session', return_value=session)
 
     yield session
 

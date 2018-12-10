@@ -1,0 +1,30 @@
+{
+  "name": "team-metrics-frontend",
+  "version": "0.0.1",
+  "description": "prototype to display team metrics",
+  "engines": {
+    "node": "10.13.0"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alphagov/team-metrics.git"
+  },
+  "author": "GDS",
+  "license": "MIT",
+  "homepage": "https://github.com/alphagov/team-metrics",
+  "dependencies": {
+    "govuk-frontend": "^2.3.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "babel-loader": "^8.0.4",
+    "css-loader": "^1.0.1",
+    "mini-css-extract-plugin": "^0.4.4",
+    "node-sass": "^4.10.0",
+    "sass-loader": "^7.1.0",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2"
+  }
+}

@@ -1,5 +1,5 @@
-from team_metrics import Metrics
-from team_metrics.daos.dao_team_metric import dao_get_sprints, dao_add_sprint
+from app import Metrics
+from app.daos.dao_team_metric import dao_get_sprints, dao_add_sprint
 
 
 def test_dao_get_sprints(dbsession):
