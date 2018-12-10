@@ -4,11 +4,11 @@ const path = require('path');
 module.exports = {
   mode: 'development',
   entry: [
-      "./assets/scss/main.scss",
-      "./assets/js/main.js"
+      "./app/assets/scss/main.scss",
+      "./app/assets/js/main.js"
     ],
   output: {
-    path: path.resolve(__dirname, "static")
+    path: path.resolve(__dirname, "app/static")
   },
   module: {
     rules: [
