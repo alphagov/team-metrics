@@ -110,3 +110,4 @@ data/
 node_modules/
 app/static/
 environment.sh
+package-lock.json
