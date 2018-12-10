@@ -3,15 +3,12 @@ import os
 import uuid
 from datetime import timedelta
 
-from flask import Flask
-
 from app.metrics_db import Metrics_DB
 
 db = Metrics_DB()
-application = Flask('app')
 
 
-def create_app():
+def create_app(application):
     db.init()
 
     register_blueprint(application)
