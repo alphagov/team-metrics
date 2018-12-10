@@ -40,6 +40,7 @@ docker run -e POSTGRES_DB=team_metrics --name "$DB_CONTAINER_NAME" --rm -p 5432:
 sleep 5
 
 export SQLALCHEMY_DATABASE_URI=postgres://postgres@localhost:5432/team_metrics
+alembic upgrade head
 alembic revision --autogenerate
 alembic upgrade head
 
