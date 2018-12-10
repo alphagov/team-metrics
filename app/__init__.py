@@ -3,15 +3,15 @@ import os
 import uuid
 from datetime import timedelta
 
-from flask import _request_ctx_stack, request, g, jsonify
-from time import monotonic
+from flask import Flask
 
 from app.metrics_db import Metrics_DB
 
 db = Metrics_DB()
+application = Flask('app')
 
 
-def create_app(application):
+def create_app():
     db.init()
 
     register_blueprint(application)
