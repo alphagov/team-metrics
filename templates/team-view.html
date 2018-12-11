@@ -1,20 +1,9 @@
 {% extends "layout.html" %}
+{% import "macros.html" as macros %}
 
 {% block content %}
 
-<div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-        {% for breadcrumb in breadcrumbs %}
-            {% if not loop.last %}
-                <li class="govuk-breadcrumbs__list-item">
-                    <a class="govuk-breadcrumbs__link" href="{{ breadcrumb['link'] }}">{{ breadcrumb['name'] }}</a>
-                </li>
-            {% else %}
-                <li class="govuk-breadcrumbs__list-item" aria-current="page">{{ breadcrumb['name'] }}</li>
-            {% endif %}
-        {% endfor %}
-    </ol>
-</div>
+{{ macros.displayBreadcrumbs(breadcrumbs) }}
 
 <h1 class="govuk-heading-xl">{{ team['name'] }}</h1>
 
@@ -100,28 +89,6 @@
 
 <a href="#" role="button" draggable="false" class="govuk-button govuk-button--start">Explore</a>
 
-{% if team['has_subteams'] == 'true' %}
-<div><h1 class="govuk-heading-l">Sub Teams</h1></div>
-
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-        {% for subteam in subteams %}
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-one-quarter">
-                    <p>
-                    {% if subteam['has_subteams'] == 'true' %}
-                        <strong>
-                    {% endif %}
-                        <a href="{{ subteam['link'] }}" class="govuk-link">{{ subteam['name'] }}</a>
-                    {% if subteam['has_subteams'] == 'true' %}
-                        </strong>
-                    {% endif %}
-                    </p>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
+{{ macros.listSubteams(team, subteams) }}
 
 {% endblock %}
