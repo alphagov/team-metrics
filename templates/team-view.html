@@ -29,6 +29,7 @@
     </div>
 </details>
 
+{% if metrics|length > 0 %}
 <table class="govuk-table">
     <!--    <caption class="govuk-table__caption">RE Traceability Team</caption> -->
     <thead class="govuk-table__head">
@@ -66,7 +67,7 @@
     <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="row">Number Of Stories Completed (source: {{ metrics[0].source }})</th>
         {% for metric in metrics %}
-        <td class="govuk-table__cell">{{ metric.num_stories }}</td>
+        <td class="govuk-table__cell">{{ metric.num_completed }}</td>
         {% endfor %}
     </tr>
     <tr class="govuk-table__row">
@@ -95,6 +96,7 @@
     </tr>
     </tbody>
 </table>
+{% endif %}
 
 <a href="#" role="button" draggable="false" class="govuk-button govuk-button--start">Explore</a>
 

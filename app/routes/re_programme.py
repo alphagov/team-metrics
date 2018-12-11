@@ -22,3 +22,42 @@ def re_programme():
                  { 'has_subteams': 'false', 'link': '#', 'name': 'Automate' },
                  ]
     return template.render(team=team, breadcrumbs=breadcrumbs, subteams=subteams, metrics=data)
+
+
+@re_programme_blueprint.route('/teams/gds/delivery-and-support/technology-operations/reliability-engineering/paas', methods=['GET'])
+def paas_team():
+    from app.daos.dao_team_metric import dao_get_sprints_project
+    metrics_json = []
+    for metric in dao_get_sprints_project('1275640'):
+        metrics_json.append(metric.serialize())
+
+    # with open('data/paas.json') as f:
+    #     data = json.load(f)
+
+    template = env.get_template('team-view.html')
+    team = {'name': 'GOV.UK PaaS', 'details': 'something something GOV.UK PaaS', 'has_subteams': 'false' }
+    breadcrumbs = re_breadcrumbs.copy()
+    breadcrumbs.append({ 'link': '/teams/gds/delivery-and-support/technology-operations/reliability-engineering/paas', 'name': team['name'] })
+    return template.render(team=team, breadcrumbs=breadcrumbs, subteams=[], metrics=metrics_json)
+
+
+@re_programme_blueprint.route('/teams/gds/delivery-and-support/technology-operations/reliability-engineering/paas/generate', methods=['GET'])
+def paas_team_generate():
+    import _thread
+
+    def generate_metrics():
+        from app.source.pivotal import Pivotal
+        from app.daos.dao_team_metric import dao_add_sprint
+        pivotal = Pivotal('1275640')
+        metrics = pivotal.get_metrics(last_num_weeks=12)
+        for metric in metrics:
+            dao_add_sprint(metric)
+        print('PaaS metrics generated')
+
+    _thread.start_new_thread(generate_metrics, ())
+
+    template = env.get_template('generating.html')
+    team = {'name': 'GOV.UK PaaS', 'details': 'something something GOV.UK PaaS', 'has_subteams': 'false' }
+    breadcrumbs = re_breadcrumbs.copy()
+    breadcrumbs.append({ 'link': '/teams/gds/delivery-and-support/technology-operations/reliability-engineering/paas', 'name': team['name'] })
+    return template.render(team=team, breadcrumbs=breadcrumbs, subteams=[])
