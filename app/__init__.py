@@ -10,23 +10,31 @@ db = Metrics_DB()
 
 def create_app(application):
     db.init()
+    alembic_upgrade()
 
     register_blueprint(application)
 
     return application
 
 
+def alembic_upgrade():
+    import alembic.config
+    alembicArgs = [
+        '--raiseerr',
+        'upgrade', 'head',
+    ]
+    alembic.config.main(argv=alembicArgs)
+
+
 def register_blueprint(application):
     from app.routes.index import index_blueprint
     from app.routes.cyber_team import cyber_team_blueprint
-    from app.routes.paas_team import paas_team_blueprint
     from app.routes.re_programme import re_programme_blueprint
     from app.routes.techops_team import techop_team_blueprint
     from app.routes.assets import assets_blueprint
 
     application.register_blueprint(index_blueprint)
     application.register_blueprint(cyber_team_blueprint)
-    application.register_blueprint(paas_team_blueprint)
     application.register_blueprint(re_programme_blueprint)
     application.register_blueprint(techop_team_blueprint)
     application.register_blueprint(assets_blueprint)
