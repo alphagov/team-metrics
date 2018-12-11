@@ -3,10 +3,6 @@
 buildpack: python_buildpack
 command: unset GUNICORN_CMD_ARGS; ./startup-paas.sh gunicorn -c /home/vcap/app/gunicorn_config.py application
 
-services:
-  - tm-creds
-  - tm-pg-service
-
 env:
   FLASK_APP: application.py
 
@@ -15,3 +11,6 @@ memory: 512M
 
 applications:
   - name: team-metrics
+    services:
+      - tm-creds
+      - tm-pg-service
