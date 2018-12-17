@@ -8,8 +8,8 @@ class Metrics_DB:
     Session = None
 
     def init(self):
-        engine = create_engine(SQLALCHEMY_DATABASE_URI)
-        self.Session = sessionmaker(bind=engine)
+        self.engine = create_engine(SQLALCHEMY_DATABASE_URI)
+        self.Session = sessionmaker(bind=self.engine)
 
     def save(self, obj):
         session = self.Session()
