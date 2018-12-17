@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import pytest
 
-from app import Metrics, dump_json
+from app.metrics import Metrics, dump_json
 from app.source import (
     get_datetime, get_cycle_time, get_process_cycle_efficiency
 )
@@ -61,5 +61,5 @@ def test_dump_json():
         mock_file.assert_called_with("data/test.json", 'w')
         mock_file().write.assert_called_once_with(
             '[{"project_id": "1", "sprint_id": "test_sprint", "started_on": "2018-11-01T12:00", ' +
-            '"ended_on": "2018-11-08T12:00", "source": "jira", "cycle_time": "1 days 0:0:0", '
+            '"ended_on": "2018-11-08T12:00", "source": "jira", "avg_cycle_time": "1 days 00:00:00", '
             '"process_cycle_efficiency": "1", "num_completed": 1, "num_incomplete": 0}]')

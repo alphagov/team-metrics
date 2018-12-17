@@ -127,7 +127,7 @@ def test_get_blocked_time_unresolved_is_none(mocker):
     assert blocked_time is None
 
 
-def test_get_metrics(mocker):
+def test_pvotal_get_metrics(mocker):
     story_started = "2018-11-01T12:00:00Z"
     story_accepted = "2018-11-03T12:00:00Z"
     story = {
@@ -143,11 +143,11 @@ def test_get_metrics(mocker):
     metrics = p.get_metrics()
 
     assert len(metrics) == 1
-    assert metrics[0].cycle_time == get_datetime(story_accepted) - get_datetime(story_started)
+    assert metrics[0].avg_cycle_time == (get_datetime(story_accepted) - get_datetime(story_started)).total_seconds()
     assert metrics[0].process_cycle_efficiency == 1
 
 
-def test_get_metrics_last_2_weeks(mocker):
+def test_get_pivotal_metrics_last_2_weeks(mocker):
     iterations = [
         {
             "number": 1,
@@ -239,11 +239,11 @@ def test_get_metrics_last_2_weeks(mocker):
     assert len(metrics) == 2
     assert metrics[0].started_on == iterations[0]['start']
     assert metrics[0].ended_on == iterations[0]['finish']
-    assert metrics[0].cycle_time == cycle_time / metrics[0].num_completed
+    assert metrics[0].avg_cycle_time == (cycle_time / metrics[0].num_completed).total_seconds()
     assert metrics[0].process_cycle_efficiency == 1
 
 
-def test_get_metrics_with_story_blocker(mocker):
+def test_get_pivotal_metrics_with_story_blocker(mocker):
     story_started = "2018-11-01T12:00:00Z"
     story_accepted = "2018-11-03T12:00:00Z"
     blocked_start = "2018-11-01T12:00:00Z"
@@ -271,14 +271,15 @@ def test_get_metrics_with_story_blocker(mocker):
     metrics = p.get_metrics()
 
     assert len(metrics) == 1
-    assert metrics[0].cycle_time == get_datetime(story_accepted) - get_datetime(story_started)
+    assert metrics[0].avg_cycle_time == (get_datetime(story_accepted) - get_datetime(story_started)).total_seconds()
     assert metrics[0].process_cycle_efficiency == (
-        (get_datetime(blocked_updated) - get_datetime(blocked_start)) / metrics[0].cycle_time
+        (get_datetime(blocked_updated) - get_datetime(blocked_start)) /
+        (get_datetime(story_accepted) - get_datetime(story_started))
     )
     assert metrics[0].num_incomplete == 0
 
 
-def test_get_metrics_with_story_blocker_unresolved(mocker):
+def test_get_pivotal_metrics_with_story_blocker_unresolved(mocker):
     story_started = "2018-11-01T12:00:00Z"
     story_accepted = "2018-11-03T12:00:00Z"
     blocked_start = "2018-11-01T12:00:00Z"
@@ -311,6 +312,7 @@ def test_get_metrics_with_story_blocker_unresolved(mocker):
     metrics = p.get_metrics()
 
     assert len(metrics) == 1
-    assert metrics[0].cycle_time == get_datetime(story_accepted) - get_datetime(story_started)
+    assert metrics[0].avg_cycle_time == (
+        get_datetime(story_accepted) - get_datetime(story_started)).total_seconds()
     assert metrics[0].process_cycle_efficiency == 1
     assert metrics[0].num_incomplete == 1

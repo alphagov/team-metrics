@@ -37,7 +37,7 @@
     <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="row">Cycle Time (source: {{ metrics[0].source }})</th>
         {% for metric in metrics %}
-        <td class="govuk-table__cell">{{ metric.cycle_time }}</td>
+        <td class="govuk-table__cell">{{ metric.avg_cycle_time }}</td>
         {% endfor %}
     </tr>
     <tr class="govuk-table__row">

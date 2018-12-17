@@ -236,7 +236,7 @@ def test_get_blocked_time_is_None_if_still_blocked(mocker):
     assert not j.get_blocked_time(issue)
 
 
-def test_get_metrics(mocker):
+def test_jira_get_metrics(mocker):
     history = [
         {
             'created': '2018-11-01T12:00:00',
@@ -256,12 +256,13 @@ def test_get_metrics(mocker):
     metrics = j.get_metrics()
 
     assert len(metrics) == 1
-    assert metrics[0].cycle_time == get_datetime(history[1]['created']) - get_datetime(history[0]['created'])
+    assert metrics[0].avg_cycle_time == (
+        get_datetime(history[1]['created']) - get_datetime(history[0]['created'])).total_seconds()
     assert metrics[0].process_cycle_efficiency == 1
 
 
 @freeze_time("2018-12-01 12:00:00")
-def test_get_metrics_for_last_12_weeks(mocker):
+def test_get_jira_metrics_for_last_12_weeks(mocker):
     history = [
         {
             'created': '2018-11-01T12:00:00',
@@ -281,7 +282,8 @@ def test_get_metrics_for_last_12_weeks(mocker):
     metrics = j.get_metrics(last_num_weeks=12)
 
     assert len(metrics) == 1
-    assert metrics[0].cycle_time == get_datetime(history[1]['created']) - get_datetime(history[0]['created'])
+    assert metrics[0].avg_cycle_time == (
+        get_datetime(history[1]['created']) - get_datetime(history[0]['created'])).total_seconds()
     assert metrics[0].process_cycle_efficiency == 1
 
 
@@ -308,7 +310,7 @@ def test_get_no_metrics_for_last_2_weeks(mocker):
     assert not metrics
 
 
-def test_get_metrics_with_blocker(mocker):
+def test_get_jira_metrics_with_blocker(mocker):
     history = [
         {
             'created': '2018-11-01T12:00:00',
@@ -336,16 +338,18 @@ def test_get_metrics_with_blocker(mocker):
     j = Jira(project_id='test_project')
     metrics = j.get_metrics()
 
+    cycle_time_timedelta = get_datetime(history[3]['created']) - get_datetime(history[0]['created'])
+
     assert len(metrics) == 1
-    assert metrics[0].cycle_time == get_datetime(history[3]['created']) - get_datetime(history[0]['created'])
+    assert metrics[0].avg_cycle_time == cycle_time_timedelta.total_seconds()
     assert metrics[0].process_cycle_efficiency == (
         (
-            metrics[0].cycle_time - (get_datetime(history[2]['created']) - get_datetime(history[1]['created']))
-        ) / metrics[0].cycle_time
+            cycle_time_timedelta - (get_datetime(history[2]['created']) - get_datetime(history[1]['created']))
+        ) / cycle_time_timedelta
     )
 
 
-def test_get_metrics_is_none_if_not_done(mocker):
+def test_get_jira_metrics_is_none_if_not_done(mocker):
     history = [
         {
             'created': '2018-11-01T12:00:00',
