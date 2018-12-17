@@ -1,21 +1,64 @@
-# team-metrics
-[Alpha] code to explore how we can collect and report on team metrics
+# Team Metrics
+[Alpha] code to explore how we can collect and report on team metrics, running on PaaS: `https://team-metrics.cloudapps.digital`
 
-## API Tokens
+## Deployment to PaaS
 
-You can create a Atlassian Personal Access Token at this location:
-https://id.atlassian.com/manage/api-tokens
+The web app is currently deployed into the `traceability` space in `gds-tech-ops`, if you can't see the space, you will need to be added to the space: 
 
-## Environment
+`cf set-space-role a.developer@gov.uk gds-tech-ops traceability SpaceDeveloper`
+
+### Deployment pre-requisites
+#### Secrets
+
+The first time that a deployment is made a user provided service on PaaS containing the credentials will need to be created: 
+
+```
+cf cups tm-creds -p '{"TM_JIRA_USER": "somone@gov.uk","TM_JIRA_PAT": "<Jira PAT>","TM_JIRA_HOST": "<Jira host>","TM_JIRA_PROJECT": "CT","TM_PIVOTAL_PAT": "<Pivotal PAT>","TM_PIVOTAL_PROJECT_ID": "<{Pivotal project ID}>","TM_TRELLO_PAT": "<Trello PAT>","TM_TRELLO_TOKEN": "<Trello Token>","TM_TRELLO_BOARD_ID": "<Trello board>","TM_TRELLO_ORG_ID": "<Trello org>","TM_TRELLO_SECRET": "<Trello secret>","TM_GITHUB_PAT": "<Github PAT>"}'
+```
+
+#### Setting the the postgres backend
+
+Run this command to add postgres database service to the space:
+
+`cf create-service postgres tiny-unencrypted-10.5 tm-pg-service`
+
+#### Deploying the app
+
+In order to deploy the app:
+
+`cf push`
+
+#### Safelist the app
+
+If the safelist route service has not already been added to the space, then you will need to add it using this command:
+
+`cf cups re-ip-whitelist-service -r https://re-ip-whitelist-service.cloudapps.digital`
+
+You can then bind the route service to the app to ensure that it will only be accessibly within the office or on VPN:
+
+`cf bind-route-service cloudapps.digital re-ip-whitelist-service --hostname team-metrics`
+
+## Running the frontend locally
+
+### API Tokens
+
+In order to get access to the You will create a Personal Access Tokens at these locations:
+
+Jira:       https://id.atlassian.com/manage/api-tokens
+Pivotal:    https://www.pivotaltracker.com/profile
+Trello:     https://trello.com/app-key
+Github:     https://github.com/settings/tokens
+
+### Environment
 
 create and source `environment.sh` containing:
 
 ```bash
-export TM_USER='' # Atlassian username / email address
-export TM_PAT='' # Atlassian personal access token
-export TM_HOST='' # Jira host (X for X.atlassian.net)
+export TM_USER= # Atlassian username / email address
+export TM_PAT= # Atlassian personal access token
+export TM_HOST= # Jira host (X for X.atlassian.net)
 
-export TM_PIVOTAL_PAT= # pivotal personal access token, created here - https://www.pivotaltracker.com/profile
+export TM_PIVOTAL_PAT= # pivotal personal access token
 export TM_PIVOTAL_PROJECT_ID= # pivotal project id, found in URL of project - https://www.pivotaltracker.com/n/projects/<project id>
 
 export TM_TRELLO_PAT= # Get key from https://trello.com/app-key
@@ -27,21 +70,14 @@ export TM_GITHUB_PAT= # Token generated from https://github.com/settings/tokens
 export SQLALCHEMY_DATABASE_URI= # <database type, eg postgres>://<host, eg localhost>:<port, eg 5432>/<database, eg team_metrics>
 ```
 
-## Running the frontend
+### Starting the web application
 
-```
-source environment.sh
+After sourcing the `environment.sh` you can start the web app by running:
 
-./startup.sh
+`./startup.sh`
 
-```
+### Running the team metrics CLI
 
-## Running the team metrics CLI
-
-```
-source environment.sh
-
-./main.py
-```
+`./main.py`
 
 Follow instructions to see team metrics from delivery tools
