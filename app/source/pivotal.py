@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import os
 from math import ceil
 
-from app import Metrics
+from app.metrics import Metrics
 from app.source import Base, get_cycle_time, get_datetime, get_process_cycle_efficiency
 from app.pivotal_client import ApiError, PivotalClient
 

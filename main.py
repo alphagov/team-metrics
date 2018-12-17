@@ -2,7 +2,8 @@
 import os
 import sys
 
-from app import create_csv_header, write_csv_line, dump_json, db
+from app import db
+from app.metrics import create_csv_header, write_csv_line, dump_json
 from app.daos.dao_team_metric import dao_add_sprint
 from app.source.jira import Jira
 from app.source.pivotal import Pivotal
@@ -27,9 +28,9 @@ def main():
 
         create_csv_header(key)
 
-        metrics = m.get_metrics(last_num_weeks=12)
         db.init()
 
+        metrics = m.get_metrics(last_num_weeks=12)
         for metric in metrics:
             write_csv_line(key, metric)
             dao_add_sprint(metric)

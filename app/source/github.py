@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from github3 import login
 
-from app import Metrics
+from app.metrics import Metrics
 from app.source import Base
 
 

@@ -1,6 +1,7 @@
 import os
 import pytest
 import subprocess
+from datetime import timedelta
 
 from flask import Flask
 
@@ -9,6 +10,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+from app.metrics import Metrics
+from app.daos.dao_team_metric import dao_add_sprint
 
 TEST_DATABASE_URI = 'postgresql://localhost/test_team_metrics'
 
@@ -79,3 +83,35 @@ def os_environ():
     os.environ = EnvironDict()
     yield
     os.environ = old_env
+
+
+@pytest.fixture
+def sample_metrics(dbsession):
+    metrics = []
+    m1 = Metrics(
+        '1',
+        1,
+        '2018-11-01T12:00',
+        '2018-11-08T12:00',
+        'jira',
+        timedelta(days=1),
+        1,
+        1,
+        0
+    )
+    m2 = Metrics(
+        '1',
+        2,
+        '2018-11-09T12:00',
+        '2018-11-16T12:00',
+        'jira',
+        timedelta(days=1),
+        1,
+        1,
+        0
+    )
+    metrics.append(m1)
+    metrics.append(m2)
+    dao_add_sprint(m1)
+    dao_add_sprint(m2)
+    return metrics
