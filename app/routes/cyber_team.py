@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import json
 from flask import Blueprint
 
@@ -24,9 +25,11 @@ def cyber_team():
 
 @cyber_team_blueprint.route('/teams/gds/delivery-and-support/technology-operations/cyber/tooling', methods=['GET'])
 def cyber_tooling_team():
-    from app.daos.dao_team_metric import dao_get_sprints_project
+    from app.daos.dao_team_metric import dao_get_sprints_started_from
     metrics_json = []
-    for metric in dao_get_sprints_project('CT'):
+    last_quarter_start = datetime.now() - timedelta(weeks=13)
+
+    for metric in dao_get_sprints_started_from('CT', last_quarter_start):
         metrics_json.append(metric.serialize())
 
     # with open('data/CT.json') as f:
