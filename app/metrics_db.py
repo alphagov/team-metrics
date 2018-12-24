@@ -22,3 +22,16 @@ class Metrics_DB:
             raise
         finally:
             session.close()
+
+    def update(self, obj, filters, **kwargs):
+        session = self.Session()
+
+        try:
+            session_obj = session.query(obj).filter_by(**filters)
+            session_obj.update(kwargs)
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()

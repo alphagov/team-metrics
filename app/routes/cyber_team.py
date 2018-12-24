@@ -48,11 +48,11 @@ def cyber_tooling_team_generate():
 
     def generate_metrics():
         from app.source.jira import Jira
-        from app.daos.dao_team_metric import dao_add_sprint
+        from app.daos.dao_team_metric import dao_upsert_sprint
         jira = Jira('CT')
         metrics = jira.get_metrics(last_num_weeks=12)
         for metric in metrics:
-            dao_add_sprint(metric)
+            dao_upsert_sprint(metric)
         print('CT metrics generated')
 
     _thread.start_new_thread(generate_metrics, ())
