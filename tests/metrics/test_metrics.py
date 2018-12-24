@@ -3,7 +3,7 @@ import pytest
 
 from app.metrics import Metrics, dump_json
 from app.source import (
-    get_datetime, get_cycle_time, get_process_cycle_efficiency
+    get_datetime, get_process_cycle_efficiency, get_time_diff
 )
 
 
@@ -14,17 +14,18 @@ def mock_pivotal_client(created_at='2018-11-01T12:00:00Z', resolved=True):
     return MockPivotalClient()
 
 
-def test_get_cycle_time():
+def test_only_get_cycle_time():
     created_at = '2018-11-01T12:00:00Z'
     accepted_at = '2018-11-11T12:00:00Z'
-    cycle_time = get_cycle_time(created_at, accepted_at=accepted_at)
+    cycle_time = get_time_diff(created_at, accepted_at)
 
-    assert str(cycle_time) == '10 days, 0:00:00'
+    # only 6 days as 3,4,10,11 of November 2018 are Sat / Sun
+    assert str(cycle_time) == '6 days, 0:00:00'
 
 
 def test_get_cycle_time_ignores_incomplete_stories():
     created_at = '2018-11-01T12:00:00Z'
-    cycle_time = get_cycle_time(created_at)
+    cycle_time = get_time_diff(created_at)
 
     assert cycle_time is None
 

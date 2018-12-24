@@ -7,19 +7,20 @@ from jira.exceptions import JIRAError
 from jira.resources import GreenHopperResource
 
 from app.metrics import Metrics
-from app.source import Base, get_datetime, get_cycle_time, get_process_cycle_efficiency
+from app.source import Base, get_datetime, get_process_cycle_efficiency, get_time_diff
 
 
 class Jira(Base):
     sprint_info_field_name = ''
 
-    def __init__(self, project_id=None):
+    def __init__(self, project_id=None, sprint_id=None):
         self.jira = JIRA(
             basic_auth=(os.environ['TM_JIRA_USER'], os.environ['TM_JIRA_PAT']),
             server='https://{}.atlassian.net'.format(os.environ['TM_JIRA_HOST']),
             options={'agile_rest_path': GreenHopperResource.AGILE_BASE_REST_PATH}
         )
         self.project_id = project_id
+        self.sprint_id = sprint_id
 
     def get_cycle_time(self, issue):
         issue = self.jira.issue(issue.id, expand='changelog')
@@ -36,7 +37,7 @@ class Jira(Base):
 
         if started_at_list and done_at:
             started_at_list.sort()
-            return get_cycle_time(started_at_list[0], done_at)
+            return get_time_diff(started_at_list[0], done_at)
 
     def get_blocked_time(self, issue):
         issue = self.jira.issue(issue.id, expand='changelog')
@@ -55,10 +56,11 @@ class Jira(Base):
             blocked_time = None
             for i, start in enumerate(blocked_start):
                 end = blocked_end[i]
+                time_diff = get_time_diff(start, end)
                 if blocked_time:
-                    blocked_time += get_datetime(end) - get_datetime(start)
+                    blocked_time += time_diff
                 else:
-                    blocked_time = get_datetime(end) - get_datetime(start)
+                    blocked_time = time_diff
 
             return blocked_time
 
@@ -75,6 +77,9 @@ class Jira(Base):
                 try:
                     for sprint in self.jira.sprints(board.id):
                         if sprint.raw['state'] == 'future':
+                            continue
+
+                        if self.sprint_id and str(sprint.id) != (self.sprint_id):
                             continue
 
                         # sprints before

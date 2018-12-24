@@ -3,7 +3,7 @@ import os
 from math import ceil
 
 from app.metrics import Metrics
-from app.source import Base, get_cycle_time, get_datetime, get_process_cycle_efficiency
+from app.source import Base, get_datetime, get_process_cycle_efficiency, get_time_diff
 from app.pivotal_client import ApiError, PivotalClient
 
 
@@ -16,7 +16,8 @@ class Pivotal(Base):
         for blocker in [b for b in self.pivotal.get_story_blockers(story_id) if b.get('resolved')]:
             updated_at = blocker['updated_at']
             created_at = blocker['created_at']
-            blocked_time = get_datetime(updated_at) - get_datetime(created_at)
+            # blocked_time = get_datetime(updated_at) - get_datetime(created_at)
+            blocked_time = get_time_diff(created_at, updated_at)
         return blocked_time
 
     def get_started_at(self, story_id):
@@ -73,7 +74,7 @@ class Pivotal(Base):
                     if not started_at:
                         continue
 
-                    _cycle_time = get_cycle_time(
+                    _cycle_time = get_time_diff(
                         started_at, story['accepted_at']
                     )
 
@@ -118,7 +119,7 @@ class Pivotal(Base):
                 iteration["start"],
                 iteration["finish"],
                 "pivotal",
-                cycle_time / num_stories_complete,
+                0 if not cycle_time else cycle_time / num_stories_complete,
                 (process_cycle_efficiency / num_stories_complete) if num_stories_complete else 0,
                 num_stories_complete,
                 num_stories_incomplete
