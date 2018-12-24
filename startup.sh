@@ -22,27 +22,30 @@ else
     pip install -r requirements.txt
 fi
 
-command -v docker > /dev/null || (echo "docker not installed" && exit 1)
-echo "====> starting database"
-DB_CONTAINER_NAME="team-metrics-dev-postgres"
-export PYTHONPATH=$(pwd)
+command -v psql > /dev/null || (echo "psql not installed" && NO_PSQL=1);
 
-function stop_database {
-    docker stop "$DB_CONTAINER_NAME" >/dev/null 2>&1 || echo -n ''
-}
-trap stop_database EXIT
-
-stop_database
-mkdir -p log
-docker run -e POSTGRES_DB=team_metrics --name "$DB_CONTAINER_NAME" --rm -p 5432:5432 postgres >log/postgres.log 2>&1 &
-
-# TODO: find a better way of checking the database is up
-sleep 5
-
-export SQLALCHEMY_DATABASE_URI=postgres://postgres@localhost:5432/team_metrics
-alembic upgrade head
-alembic revision --autogenerate
-alembic upgrade head
+if [[ $NO_PSQL == 1 ]]; then
+    command -v docker > /dev/null || (echo "docker not installed" && exit 1)
+    echo "====> creating database in docker"
+    DB_CONTAINER_NAME="team-metrics-dev-postgres"
+    export PYTHONPATH=$(pwd)
+    
+    function stop_database {
+        docker stop "$DB_CONTAINER_NAME" >/dev/null 2>&1 || echo -n ''
+    }
+    trap stop_database EXIT
+    
+    stop_database
+    mkdir -p log
+    docker run -e POSTGRES_DB=team_metrics --name "$DB_CONTAINER_NAME" --rm -p 5432:5432 postgres >log/postgres.log 2>&1 &
+else
+    if psql -lqt | cut -d \| -f 1 | grep -qw ${SQLALCHEMY_DATABASE_URI##*/}; then
+        echo ${SQLALCHEMY_DATABASE_URI##*/} 'database found in PSQL'
+    else
+        createdb ${DATABASE_URL##*/}
+        echo ${SQLALCHEMY_DATABASE_URI##*/} 'created in PSQL'
+    fi
+fi
 
 echo "====> running webpack"
 npx webpack
