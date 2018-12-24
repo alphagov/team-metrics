@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from freezegun import freeze_time
 
 from app.source import get_datetime, get_process_cycle_efficiency
@@ -151,7 +153,7 @@ def test_get_cycle_time_allows_blocked(mocker):
                 'toString': 'Blocked'
             },
             {
-                'created': '2018-11-03T12:00:00',
+                'created': '2018-11-05T12:00:00',
                 'toString': 'Done'
             },
         ]
@@ -164,7 +166,7 @@ def test_get_cycle_time_allows_blocked(mocker):
     assert str(j.get_cycle_time(issue)) == '2 days, 0:00:00'
 
 
-def test_get_blocked_time(mocker):
+def test_jira_get_blocked_time(mocker):
     issue = mock_issue(
         [
             {
@@ -176,12 +178,12 @@ def test_get_blocked_time(mocker):
                 'toString': 'Blocked'
             },
             {
-                'created': '2018-11-03T12:00:00',
+                'created': '2018-11-05T12:00:00',
                 'fromString': 'Blocked',
                 'toString': 'In Progress'
             },
             {
-                'created': '2018-11-04T12:00:00',
+                'created': '2018-11-06T12:00:00',
                 'toString': 'Done'
             },
         ]
@@ -202,7 +204,7 @@ def test_get_blocked_time_is_None_if_not_blocked(mocker):
                 'toString': 'In Progress'
             },
             {
-                'created': '2018-11-04T12:00:00',
+                'created': '2018-11-05T12:00:00',
                 'toString': 'Done'
             },
         ]
@@ -223,7 +225,7 @@ def test_get_blocked_time_is_None_if_still_blocked(mocker):
                 'toString': 'In Progress'
             },
             {
-                'created': '2018-11-04T12:00:00',
+                'created': '2018-11-05T12:00:00',
                 'toString': 'Blocked'
             },
         ]
@@ -321,12 +323,12 @@ def test_get_jira_metrics_with_blocker(mocker):
             'toString': 'Blocked'
         },
         {
-            'created': '2018-11-03T12:00:00',
+            'created': '2018-11-05T12:00:00',
             'fromString': 'Blocked',
             'toString': 'In Progress'
         },
         {
-            'created': '2018-11-04T12:00:00',
+            'created': '2018-11-06T12:00:00',
             'toString': 'Done'
         },
     ]
@@ -338,13 +340,14 @@ def test_get_jira_metrics_with_blocker(mocker):
     j = Jira(project_id='test_project')
     metrics = j.get_metrics()
 
-    cycle_time_timedelta = get_datetime(history[3]['created']) - get_datetime(history[0]['created'])
+    cycle_time_timedelta = get_datetime(history[3]['created']) - get_datetime(history[0]['created']) - timedelta(days=2)
 
     assert len(metrics) == 1
     assert metrics[0].avg_cycle_time == cycle_time_timedelta.total_seconds()
     assert metrics[0].process_cycle_efficiency == (
         (
-            cycle_time_timedelta - (get_datetime(history[2]['created']) - get_datetime(history[1]['created']))
+            cycle_time_timedelta - (
+                get_datetime(history[2]['created']) - get_datetime(history[1]['created']) - timedelta(days=2))
         ) / cycle_time_timedelta
     )
 

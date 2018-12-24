@@ -24,3 +24,18 @@ def dao_add_sprint(metric):
         return
 
     db.save(TeamMetric(**metric.__dict__))
+
+
+def dao_upsert_sprint(metric):
+    db_metric = db.Session().query(TeamMetric).filter_by(
+        project_id=metric.project_id,
+        sprint_id=str(metric.sprint_id)).first()
+
+    if db_metric:
+        db.update(
+            TeamMetric,
+            filters={'project_id': metric.project_id, 'sprint_id': metric.sprint_id},
+            **metric.__dict__
+        )
+    else:
+        db.save(TeamMetric(**metric.__dict__))

@@ -12,9 +12,8 @@ Base = declarative_base()
 class TeamMetric(Base):
     __tablename__ = "team_metric"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id = Column(String, index=False, nullable=False)
-    sprint_id = Column(Integer, index=False, nullable=False)
+    project_id = Column(String, index=False, nullable=False, primary_key=True)
+    sprint_id = Column(Integer, index=False, nullable=False, primary_key=True)
     started_on = Column(DateTime, nullable=False)
     ended_on = Column(DateTime, nullable=False)
     source = Column(String, index=False, nullable=False)
@@ -25,7 +24,6 @@ class TeamMetric(Base):
 
     def serialize(self):
         return {
-            'id': str(self.id),
             'project_id': self.project_id,
             'sprint_id': self.sprint_id,
             'started_on': str(self.started_on),

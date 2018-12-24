@@ -6,7 +6,7 @@ from app.source.pivotal import Pivotal
 
 
 def mock_pivotal_client(
-    mocker, project_info={}, iterations=[], stories=[],
+    mocker, project_info={}, iterations=[], story_started="2018-11-01T12:00:00Z", stories=[],
     story_blockers=[], story_activities={}
 ):
     mocker.patch("os.environ", {
@@ -25,7 +25,7 @@ def mock_pivotal_client(
             {
                 "number": "1",
                 "start": "2018-11-01T12:00:00Z",
-                "finish": "2018-11-14T12:00:00Z",
+                "finish": "2018-11-15T12:00:00Z",
                 "stories": stories
             }
         ]
@@ -36,7 +36,7 @@ def mock_pivotal_client(
                     "id": 1,
                     "current_state": "accepted",
                     "name": "test",
-                    "accepted_at": "2018-11-03T12:00:00Z",
+                    "accepted_at": "2018-11-01T12:00:00Z",
                 }
             ]
 
@@ -48,7 +48,7 @@ def mock_pivotal_client(
                     {
                         'kind': 'story',
                         'new_values': {
-                            'updated_at': "2018-11-01T12:00:00Z"
+                            'updated_at': story_started
                         }
                     }
                 ],
@@ -129,7 +129,7 @@ def test_get_blocked_time_unresolved_is_none(mocker):
 
 def test_pvotal_get_metrics(mocker):
     story_started = "2018-11-01T12:00:00Z"
-    story_accepted = "2018-11-03T12:00:00Z"
+    story_accepted = "2018-11-05T12:00:00Z"
     story = {
         "id": 1,
         "current_state": "accepted",
@@ -137,13 +137,16 @@ def test_pvotal_get_metrics(mocker):
         "accepted_at": story_accepted,
     }
 
-    mock_pivotal_client(mocker, stories=[story])
+    mock_pivotal_client(mocker, story_started=story_started, stories=[story])
 
     p = Pivotal()
     metrics = p.get_metrics()
 
     assert len(metrics) == 1
-    assert metrics[0].avg_cycle_time == (get_datetime(story_accepted) - get_datetime(story_started)).total_seconds()
+    assert metrics[0].avg_cycle_time == (
+        get_datetime(story_accepted) - get_datetime(story_started) - 
+        # subtract 2 days as there is a weekend between start end accepted
+        timedelta(days=2)).total_seconds()
     assert metrics[0].process_cycle_efficiency == 1
 
 
@@ -158,13 +161,13 @@ def test_get_pivotal_metrics_last_2_weeks(mocker):
                     "id": 1,
                     "current_state": "accepted",
                     "name": "test",
-                    "accepted_at": "2018-11-03T12:00:00Z",
+                    "accepted_at": "2018-11-05T12:00:00Z",
                 },
                 {
                     "id": 2,
                     "current_state": "accepted",
                     "name": "test 2",
-                    "accepted_at": "2018-11-05T12:00:00Z",
+                    "accepted_at": "2018-11-07T12:00:00Z",
                 },
             ]
         },
@@ -177,7 +180,7 @@ def test_get_pivotal_metrics_last_2_weeks(mocker):
                     "id": 3,
                     "current_state": "accepted",
                     "name": "test",
-                    "accepted_at": "2018-11-10T12:00:00Z",
+                    "accepted_at": "2018-11-12T12:00:00Z",
                 },
             ]
         },
@@ -230,10 +233,12 @@ def test_get_pivotal_metrics_last_2_weeks(mocker):
 
     cycle_time = (
         get_datetime(iterations[0]['stories'][0]['accepted_at']) -
-        get_datetime(story_activities[1][0]['changes'][0]['new_values']['updated_at'])
+        get_datetime(story_activities[1][0]['changes'][0]['new_values']['updated_at']) -
+        timedelta(days=2)
     ) + (
         get_datetime(iterations[0]['stories'][1]['accepted_at']) -
-        get_datetime(story_activities[2][0]['changes'][0]['new_values']['updated_at'])
+        get_datetime(story_activities[2][0]['changes'][0]['new_values']['updated_at']) -
+        timedelta(days=2)
     )
 
     assert len(metrics) == 2
@@ -245,7 +250,7 @@ def test_get_pivotal_metrics_last_2_weeks(mocker):
 
 def test_get_pivotal_metrics_with_story_blocker(mocker):
     story_started = "2018-11-01T12:00:00Z"
-    story_accepted = "2018-11-03T12:00:00Z"
+    story_accepted = "2018-11-05T12:00:00Z"
     blocked_start = "2018-11-01T12:00:00Z"
     blocked_updated = "2018-11-02T12:00:00Z"
 
@@ -271,18 +276,20 @@ def test_get_pivotal_metrics_with_story_blocker(mocker):
     metrics = p.get_metrics()
 
     assert len(metrics) == 1
-    assert metrics[0].avg_cycle_time == (get_datetime(story_accepted) - get_datetime(story_started)).total_seconds()
+    assert metrics[0].avg_cycle_time == (
+        get_datetime(story_accepted) - get_datetime(story_started)
+        - timedelta(days=2)).total_seconds()
     assert metrics[0].process_cycle_efficiency == (
         (get_datetime(blocked_updated) - get_datetime(blocked_start)) /
-        (get_datetime(story_accepted) - get_datetime(story_started))
+        (get_datetime(story_accepted) - get_datetime(story_started) - timedelta(days=2))
     )
     assert metrics[0].num_incomplete == 0
 
 
 def test_get_pivotal_metrics_with_story_blocker_unresolved(mocker):
     story_started = "2018-11-01T12:00:00Z"
-    story_accepted = "2018-11-03T12:00:00Z"
-    blocked_start = "2018-11-01T12:00:00Z"
+    story_accepted = "2018-11-07T12:00:00Z"
+    blocked_start = "2018-11-05T12:00:00Z"
 
     stories = [
         {
@@ -304,7 +311,8 @@ def test_get_pivotal_metrics_with_story_blocker_unresolved(mocker):
     }
 
     mock_pivotal_client(
-        mocker, 
+        mocker,
+        story_started=story_started,
         stories=stories, story_blockers=[blocker]
     )
 
@@ -313,6 +321,7 @@ def test_get_pivotal_metrics_with_story_blocker_unresolved(mocker):
 
     assert len(metrics) == 1
     assert metrics[0].avg_cycle_time == (
-        get_datetime(story_accepted) - get_datetime(story_started)).total_seconds()
+        get_datetime(story_accepted) - get_datetime(story_started)
+        - timedelta(days=2)).total_seconds()
     assert metrics[0].process_cycle_efficiency == 1
     assert metrics[0].num_incomplete == 1

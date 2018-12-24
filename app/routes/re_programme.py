@@ -51,11 +51,11 @@ def paas_team_generate():
 
     def generate_metrics():
         from app.source.pivotal import Pivotal
-        from app.daos.dao_team_metric import dao_add_sprint
+        from app.daos.dao_team_metric import dao_upsert_sprint
         pivotal = Pivotal('1275640')
         metrics = pivotal.get_metrics(last_num_weeks=12)
         for metric in metrics:
-            dao_add_sprint(metric)
+            dao_upsert_sprint(metric)
         print('PaaS metrics generated')
 
     _thread.start_new_thread(generate_metrics, ())
