@@ -11,9 +11,9 @@ from app.source.trello import Trello
 from app.source.github import Github
 
 
-def get_metrics_tool(choice):
+def get_metrics_tool(choice, sprint_id=None):
     if choice in ['j', 'a']:
-        return Jira(os.environ['TM_JIRA_PROJECT']), os.environ['TM_JIRA_PROJECT']
+        return Jira(os.environ['TM_JIRA_PROJECT'], sprint_id=sprint_id), os.environ['TM_JIRA_PROJECT']
     if choice in ['p', 'a']:
         return Pivotal(os.environ['TM_PIVOTAL_PROJECT_ID']), os.environ['TM_PIVOTAL_PROJECT_ID']
     if choice in ['t', 'a']:
@@ -23,8 +23,8 @@ def get_metrics_tool(choice):
 
 
 def main():
-    def get_metrics(choice):
-        m, key = get_metrics_tool(choice)
+    def get_metrics(choice, sprint_id=None):
+        m, key = get_metrics_tool(choice, sprint_id=sprint_id)
 
         create_csv_header(key)
 
@@ -38,7 +38,7 @@ def main():
         dump_json(key, metrics)
 
     if len(sys.argv) > 1:
-        get_metrics(sys.argv[1])
+        get_metrics(sys.argv[1], None if len(sys.argv) <= 2 else sys.argv[2])
     else:
         while True:
             choice = input("\nCollect team metrics from (j)ira, (p)ivotal, (t)rello, (g)ithub, (a)ll, e(x)it:")
