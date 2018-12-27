@@ -42,7 +42,7 @@ else
     if psql -lqt | cut -d \| -f 1 | grep -qw ${SQLALCHEMY_DATABASE_URI##*/}; then
         echo ${SQLALCHEMY_DATABASE_URI##*/} 'database found in PSQL'
     else
-        createdb ${DATABASE_URL##*/}
+        createdb ${SQLALCHEMY_DATABASE_URI##*/}
         echo ${SQLALCHEMY_DATABASE_URI##*/} 'created in PSQL'
     fi
 fi
