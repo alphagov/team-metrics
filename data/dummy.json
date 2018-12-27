@@ -1,0 +1,57 @@
+[
+  {
+    "project_id": "1",
+    "sprint_id": 1,
+    "started_on": "2018-09-03T09:00:00Z",
+    "ended_on": "2018-09-17T17:00:00Z",
+    "source": "na",
+    "cycle_time": "+10%",
+    "process_cycle_efficiency": "-3%",
+    "num_stories": "+4%",
+    "num_incomplete": "+2%" 
+  },
+  {
+    "project_id": "1",
+    "sprint_id": 2,
+    "started_on": "2018-09-17T09:00:00Z",
+    "ended_on": "2018-09-28T17:00:00Z",
+    "source": "na",
+    "cycle_time": "+10%",
+    "process_cycle_efficiency": "-3%",
+    "num_stories": "+4%",
+    "num_incomplete": "+2%"
+  },
+  {
+    "project_id": "1",
+    "sprint_id": 3,
+    "started_on": "2018-10-01T09:00:00Z",
+    "ended_on": "2018-10-12T17:00:00Z",
+    "source": "na",
+    "cycle_time": "+10%",
+    "process_cycle_efficiency": "-3%",
+    "num_stories": "+4%",
+    "num_incomplete": "+2%"
+  },
+  {
+    "project_id": "1",
+    "sprint_id": 4,
+    "started_on": "2018-10-15T09:00:00Z",
+    "ended_on": "2018-10-26T17:00:00Z",
+    "source": "na",
+    "cycle_time": "+10%",
+    "process_cycle_efficiency": "-3%",
+    "num_stories": "+4%",
+    "num_incomplete": "+2%"
+  },
+  {
+    "project_id": "1",
+    "sprint_id": 5,
+    "started_on": "2018-10-29T09:00:00Z",
+    "ended_on": "2018-11-09T17:00:00Z",
+    "source": "na",
+    "cycle_time": "+10%",
+    "process_cycle_efficiency": "-3%",
+    "num_stories": "+4%",
+    "num_incomplete": "+2%"
+  }
+]
