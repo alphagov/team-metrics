@@ -24,7 +24,7 @@ fi
 
 command -v psql > /dev/null || (echo "psql not installed" && NO_PSQL=1);
 
-if [[ $NO_PSQL == 1 ]]; then
+if [[ $NO_PSQL == 1 || $SQLALCHEMY_DATABASE_URI == 'docker' ]]; then
     command -v docker > /dev/null || (echo "docker not installed" && exit 1)
     echo "====> creating database in docker"
     DB_CONTAINER_NAME="team-metrics-dev-postgres"
@@ -39,11 +39,16 @@ if [[ $NO_PSQL == 1 ]]; then
     mkdir -p log
     docker run -e POSTGRES_DB=team_metrics --name "$DB_CONTAINER_NAME" --rm -p 5432:5432 postgres >log/postgres.log 2>&1 &
 else
-    if psql -lqt | cut -d \| -f 1 | grep -qw ${SQLALCHEMY_DATABASE_URI##*/}; then
-        echo ${SQLALCHEMY_DATABASE_URI##*/} 'database found in PSQL'
+    if [ -z "$SQLALCHEMY_DATABASE_URI" ]; then
+        echo "Please export SQLALCHEMY_DATABASE_URI, normally postgres://localhost:5432 or set to 'docker' to use docker postgres"
+        exit
     else
-        createdb ${SQLALCHEMY_DATABASE_URI##*/}
-        echo ${SQLALCHEMY_DATABASE_URI##*/} 'created in PSQL'
+        if psql -lqt | cut -d \| -f 1 | grep -qw ${SQLALCHEMY_DATABASE_URI##*/}; then
+            echo ${SQLALCHEMY_DATABASE_URI##*/} 'database found in PSQL'
+        else
+            createdb ${SQLALCHEMY_DATABASE_URI##*/}
+            echo ${SQLALCHEMY_DATABASE_URI##*/} 'created in PSQL'
+        fi
     fi
 fi
 
