@@ -45,8 +45,11 @@ You can then bind the route service to the app to ensure that it will only be ac
 In order to get access to the You will create a Personal Access Tokens at these locations:
 
 Jira:       https://id.atlassian.com/manage/api-tokens
+
 Pivotal:    https://www.pivotaltracker.com/profile
+
 Trello:     https://trello.com/app-key
+
 Github:     https://github.com/settings/tokens
 
 ### Environment
@@ -67,7 +70,7 @@ export TM_TRELLO_BOARD_ID= # Get https://trello.com/b/<board id>
 
 export TM_GITHUB_PAT= # Token generated from https://github.com/settings/tokens
 
-export SQLALCHEMY_DATABASE_URI= # <database type, eg postgres>://<host, eg localhost>:<port, eg 5432>/<database, eg team_metrics>
+export SQLALCHEMY_DATABASE_URI= # 'docker' or 'postgres://<host, eg localhost>:<port, eg 5432>/<database name, eg team_metrics>'
 ```
 
 ### Starting the web application
