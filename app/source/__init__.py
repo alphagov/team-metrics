@@ -24,8 +24,8 @@ def get_time_diff(started_at, ended_at=None):
     if ended_at:
         # if start or end is on a weekend should the day be pushed to Friday / Monday?
         # As otherwise that day will be lost as it lands on the weekend
-        start = get_datetime(started_at)
-        end = get_datetime(ended_at)
+        start = get_datetime(started_at) if type(started_at) is str else started_at
+        end = get_datetime(ended_at) if type(ended_at) is str else ended_at
         weekend_days = count_days_on_weekends(start, end)
         return end - start - timedelta(days=weekend_days)
 
