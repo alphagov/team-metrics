@@ -14,7 +14,7 @@ from sqlalchemy.orm import sessionmaker
 from app.metrics import Metrics
 from app.daos.dao_team_metric import dao_add_sprint
 
-TEST_DATABASE_URI = 'postgresql://localhost/test_team_metrics'
+TEST_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI') + '_test'
 
 
 @pytest.fixture(scope='session')
