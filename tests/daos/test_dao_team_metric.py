@@ -69,7 +69,7 @@ def test_add_sprint(dbsession):
 def test_upsert_sprint_can_add_metric(dbsession):
     m = Metrics(
         'upsert_id',
-        1,
+        '1',
         '2018-11-01T12:00',
         '2018-11-08T12:00',
         'jira',

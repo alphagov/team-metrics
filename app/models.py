@@ -13,7 +13,7 @@ class TeamMetric(Base):
     __tablename__ = "team_metric"
 
     project_id = Column(String, index=False, nullable=False, primary_key=True)
-    sprint_id = Column(Integer, index=False, nullable=False, primary_key=True)
+    sprint_id = Column(String, index=False, nullable=False, primary_key=True)
     started_on = Column(DateTime, nullable=False)
     ended_on = Column(DateTime, nullable=False)
     source = Column(String, index=False, nullable=False)
