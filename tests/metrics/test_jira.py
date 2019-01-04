@@ -99,7 +99,7 @@ def mock_jira_client(mocker, issue):
     mocker.patch("app.source.jira.JIRA", MockJiraClient)
 
 
-def test_get_cycle_time(mocker):
+def test_jira_get_cycle_time(mocker):
     issue = mock_issue(
         [
             {

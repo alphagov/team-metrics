@@ -6,7 +6,8 @@ from app.source.pivotal import Pivotal
 
 
 def mock_pivotal_client(
-    mocker, project_info={}, iterations=[], story_started="2018-11-01T12:00:00Z", stories=[],
+    mocker, project_info={}, iterations=[],
+    story_started="2018-11-01T12:00:00Z", stories=[],
     story_blockers=[], story_activities={}
 ):
     mocker.patch("os.environ", {
