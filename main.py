@@ -4,7 +4,7 @@ import sys
 
 from app import db
 from app.metrics import create_csv_header, write_csv_line, dump_json
-from app.daos.dao_team_metric import dao_add_sprint
+from app.daos.dao_team_metric import dao_upsert_sprint
 from app.source.jira import Jira
 from app.source.pivotal import Pivotal
 from app.source.trello import Trello
@@ -17,7 +17,7 @@ def get_metrics_tool(choice, sprint_id=None):
     if choice in ['p', 'a']:
         return Pivotal(os.environ['TM_PIVOTAL_PROJECT_ID']), os.environ['TM_PIVOTAL_PROJECT_ID']
     if choice in ['t', 'a']:
-        return Trello(), None
+        return Trello(sprint_id), None
     if choice in ['g', 'a']:
         return Github(), None
 
@@ -33,7 +33,7 @@ def main():
         metrics = m.get_metrics(last_num_weeks=12)
         for metric in metrics:
             write_csv_line(key, metric)
-            dao_add_sprint(metric)
+            dao_upsert_sprint(metric)
 
         dump_json(key, metrics)
 
