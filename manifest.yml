@@ -1,6 +1,6 @@
 ---
 
-buildpack: python_buildpack
+buildpacks: python_buildpack
 command: unset GUNICORN_CMD_ARGS; ./startup-paas.sh gunicorn -c /home/vcap/app/gunicorn_config.py application
 
 env:
