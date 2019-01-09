@@ -52,6 +52,7 @@ BLOCKED = r'Blocked'
 SIGN_OFF = r'Sign off'
 DONE = r'^Done\s.+'
 SPRINTS = 'TM Q3 sprints'
+IGNORE_CARDS = 'SPRINT GOALS #DONOTMOVE'
 
 DOING_TRELLO_LIST = r"{}|{}".format(TO_DO, DOING)
 INCOMPLETED_TRELLO_LIST = r"{}|{}|{}".format(TO_DO, DOING, BLOCKED)
@@ -127,6 +128,9 @@ class Trello(Base):
         for _list in lists:
             print('*** processing cards in ', _list.name)
             for card in _list.list_cards():
+                if card.name == IGNORE_CARDS:
+                    continue
+
                 outside_or_completed = False
 
                 movements = sorted(card.list_movements(), key=lambda d: d['datetime'])
@@ -221,7 +225,7 @@ class Trello(Base):
                 board.list_lists(), _list.start_date, _list.end_date)
 
             m = Metrics(
-                self.org_id,
+                self.board_id,
                 _list.id,
                 _list.start_date,
                 _list.end_date,
