@@ -3,15 +3,21 @@ import pytest
 
 from app.metrics import Metrics, dump_json
 from app.source import (
-    get_datetime, get_process_cycle_efficiency, get_time_diff
+    get_datetime,
+    get_process_cycle_efficiency,
+    get_quarter_daterange,
+    get_time_diff
 )
 
 
-def mock_pivotal_client(created_at='2018-11-01T12:00:00Z', resolved=True):
-    class MockPivotalClient:
-        def __init__(self, project_id=None):
-            pass
-    return MockPivotalClient()
+@pytest.mark.parametrize('quarter,expected_datetime_start,expected_datetime_end', [
+    (3, datetime(2018, 10, 8, 0, 0), datetime(2019, 1, 4, 0, 0)),
+    (4, datetime(2019, 1, 14, 0, 0), datetime(2019, 4, 12, 0, 0))
+])
+def test_get_quarter_daterange(quarter, expected_datetime_start, expected_datetime_end):
+    q_start, q_end = get_quarter_daterange(2018, quarter)
+    assert q_start == expected_datetime_start
+    assert q_end == expected_datetime_end
 
 
 def test_only_get_cycle_time():

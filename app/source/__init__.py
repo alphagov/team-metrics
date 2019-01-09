@@ -6,6 +6,30 @@ DATETIME_PATTERN = r'(^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}).*'
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 
+def get_quarter_daterange(year, quarter):
+    # Q1 starts in April, start of tax year
+    num_firebreak = quarter - 1
+    start_week_num = quarter * 13 + num_firebreak
+
+    if start_week_num > 52:
+        start_week_num -= 53
+        year += 1
+
+    start_week = "{}-W{}".format(year, start_week_num)
+    start_date = datetime.strptime(start_week + '-1', "%Y-W%W-%w")
+
+    end_week_num = start_week_num + 12
+    if end_week_num > 52:
+        end_week_num -= 53
+        year += 1
+
+    end_week = "{}-W{}".format(year, end_week_num)
+
+    end_date = datetime.strptime(end_week + '-5', "%Y-W%W-%w")
+
+    return start_date, end_date
+
+
 def get_datetime(datetime_str):
     matched_datetime = re.search(DATETIME_PATTERN, datetime_str)
     if matched_datetime:
