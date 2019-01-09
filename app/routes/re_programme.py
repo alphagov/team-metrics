@@ -2,8 +2,10 @@ from datetime import datetime, timedelta
 import json
 
 from flask import Blueprint
-from app.config import TM_TRELLO_BOARD_ID
+from app.config import TM_TRELLO_BOARD_ID, TM_PIVOTAL_PROJECT_ID
+from app.daos.dao_team_metric import dao_get_sprints_between_daterange
 from app.routes import env, re_breadcrumbs
+from app.source import get_quarter_daterange
 
 re_programme_blueprint = Blueprint('/teams/gds/delivery-and-support/technology-operations/reliability-engineering', __name__)
 
@@ -28,16 +30,12 @@ def re_programme():
 
 @re_programme_blueprint.route('/teams/gds/delivery-and-support/technology-operations/reliability-engineering/paas', methods=['GET'])
 def paas_team():
-    from app.daos.dao_team_metric import dao_get_sprints_started_from
     metrics_json = []
 
-    last_quarter_start = datetime.now() - timedelta(weeks=13)
+    q_start, q_end = get_quarter_daterange(2018, 3)
 
-    for metric in dao_get_sprints_started_from('1275640', last_quarter_start):
+    for metric in dao_get_sprints_between_daterange(TM_PIVOTAL_PROJECT_ID, q_start, q_end):
         metrics_json.append(metric.serialize())
-
-    # with open('data/paas.json') as f:
-    #     data = json.load(f)
 
     template = env.get_template('team-view.html')
     team = {'name': 'GOV.UK PaaS', 'details': 'something something GOV.UK PaaS', 'has_subteams': 'false' }
@@ -70,12 +68,11 @@ def paas_team_generate():
 
 @re_programme_blueprint.route('/teams/gds/delivery-and-support/technology-operations/reliability-engineering/observe', methods=['GET'])
 def observe_team():
-    from app.daos.dao_team_metric import dao_get_sprints_started_from
     metrics_json = []
 
-    last_quarter_start = datetime.now() - timedelta(weeks=13)
+    q_start, q_end = get_quarter_daterange(2018, 3)
 
-    for metric in dao_get_sprints_started_from(TM_TRELLO_BOARD_ID, last_quarter_start):
+    for metric in dao_get_sprints_between_daterange(TM_TRELLO_BOARD_ID, q_start, q_end):
         metrics_json.append(metric.serialize())
 
     template = env.get_template('team-view.html')
