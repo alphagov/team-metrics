@@ -5,7 +5,7 @@ from app.models import TeamMetric
 from app.daos.dao_team_metric import (
     dao_get_sprints,
     dao_add_sprint,
-    dao_get_sprints_started_from,
+    dao_get_sprints_between_daterange,
     dao_upsert_sprint
 )
 
@@ -39,14 +39,19 @@ def test_dao_get_sprints(dbsession):
     assert len(sprints) == 2
 
 
-def test_dao_get_sprint_started_from(sample_metrics):
-    sprints = dao_get_sprints_started_from(sample_metrics[0].project_id, '2018-11-01T12:00')
+def test_dao_get_sprint_between_narrow_daterange(sample_metrics):
+    sprints = dao_get_sprints_between_daterange(sample_metrics[0].project_id, '2018-11-01T12:00', '2018-11-08T12:00')
+    assert len(sprints) == 1
+
+
+def test_dao_get_sprint_between_wider_daterange(sample_metrics):
+    sprints = dao_get_sprints_between_daterange(sample_metrics[0].project_id, '2018-11-01T12:00', '2018-11-16T12:00')
     assert len(sprints) == 2
 
 
-def test_dao_get_sprint_started_from_returns_None_if_no_sprints(sample_metrics):
-    sprints = dao_get_sprints_started_from(sample_metrics[0].project_id, '2018-12-01T12:00')
-    assert len(sprints) == 0
+def test_dao_get_sprint_between_wider_daterange_midweek(sample_metrics):
+    sprints = dao_get_sprints_between_daterange(sample_metrics[0].project_id, '2018-11-01T12:00', '2018-11-14T12:00')
+    assert len(sprints) == 2
 
 
 def test_add_sprint(dbsession):

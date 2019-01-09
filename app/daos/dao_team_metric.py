@@ -8,10 +8,11 @@ def dao_get_sprints():
     return db.Session().query(TeamMetric).all()
 
 
-def dao_get_sprints_started_from(_project_id, _started_on):
+def dao_get_sprints_between_daterange(_project_id, started_on, end_started_on):
     return db.Session().query(TeamMetric).filter(and_(
             TeamMetric.project_id == _project_id,
-            TeamMetric.started_on >= _started_on
+            TeamMetric.started_on >= started_on,
+            TeamMetric.started_on <= end_started_on,
         )).all()
 
 
