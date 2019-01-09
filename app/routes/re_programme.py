@@ -92,7 +92,7 @@ def observe_team_generate():
     def generate_metrics():
         from app.source.trello import Trello
         from app.daos.dao_team_metric import dao_upsert_sprint
-        trello = Trello()
+        trello = Trello(TM_TRELLO_BOARD_ID)
         metrics = trello.get_metrics(last_num_weeks=12)
         for metric in metrics:
             dao_upsert_sprint(metric)

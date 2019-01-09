@@ -61,11 +61,11 @@ COMPLETED_TRELLO_LIST = r"{}|{}".format(SIGN_OFF, DONE)
 
 class Trello(Base):
 
-    def __init__(self, list_id=None):
+    def __init__(self, board_id=None, list_id=None):
         self.pat = os.environ['TM_TRELLO_PAT']
         self.token = os.environ['TM_TRELLO_TOKEN']
         self.org_id = os.environ['TM_TRELLO_ORG_ID']
-        self.board_id = os.environ['TM_TRELLO_BOARD_ID']
+        self.board_id = board_id
         self.list_id = list_id
 
         self.trello = TrelloClient(

@@ -17,7 +17,7 @@ def get_metrics_tool(choice, sprint_id=None):
     if choice in ['p', 'a']:
         return Pivotal(os.environ['TM_PIVOTAL_PROJECT_ID']), os.environ['TM_PIVOTAL_PROJECT_ID']
     if choice in ['t', 'a']:
-        return Trello(sprint_id), None
+        return Trello(os.environ['TM_TRELLO_BOARD_ID'], sprint_id=sprint_id), os.environ['TM_TRELLO_BOARD_ID']
     if choice in ['g', 'a']:
         return Github(), None
 
