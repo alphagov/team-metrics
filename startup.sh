@@ -12,7 +12,7 @@ if [ -z "$VIRTUAL_ENV" ]; then
         echo "====> did not detect virtualenv, installing..."
         # use pip3 to install virtualenv, and use pip later because it's the right one at that point
         pip3 install virtualenv
-        virtualenv -p /usr/local/bin/python3.7 venv
+        virtualenv -p /usr/local/bin/python3.6 venv
         source venv/bin/activate
         pip install -r requirements.txt
     else
