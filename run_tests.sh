@@ -1,3 +1,4 @@
+#!/bin/bash
 command -v psql > /dev/null || (echo "psql not installed" && NO_PSQL=1);
 
 if [[ $NO_PSQL == 1 || $USE_DOCKER == 'true' ]]; then
@@ -22,3 +23,7 @@ else
 fi
 
 python -m pytest --disable-pytest-warnings tests/
+
+if [ $? != '0' ]; then
+    exit 1
+fi
