@@ -3,7 +3,7 @@ import os
 from math import ceil
 
 from app.metrics import Metrics
-from app.source import Base, get_datetime, get_process_cycle_efficiency, get_time_diff
+from app.source import Base, get_datetime, get_process_cycle_efficiency, get_time_diff, get_quarter_daterange
 from app.pivotal_client import ApiError, PivotalClient
 
 
@@ -19,7 +19,7 @@ class Pivotal(Base):
             # blocked_time = get_datetime(updated_at) - get_datetime(created_at)
             blocked_time = get_time_diff(created_at, updated_at)
         return blocked_time
-
+ 
     def get_started_at(self, story_id):
         activities = self.pivotal.get_story_activities(story_id)
         for activity in activities:
@@ -28,31 +28,34 @@ class Pivotal(Base):
                     return story['new_values']['updated_at']
         print(">>>> Not started", story_id)
 
-    def get_iteration_range(self, last_num_weeks):
+    def get_iteration_range(self, year, quarter):
+        q_start, _ = get_quarter_daterange(year, quarter)
+
         project_info = self.pivotal.get_project()
 
+        date_diff = q_start - get_datetime(project_info['start_time'])
+
+        s = date_diff.total_seconds()
+        weeks, _ = divmod(s, 7 * 24 * 60 * 60)
+
         iteration_length = project_info['iteration_length']
-        current_iteration_number = project_info['current_iteration_number']
+        current_iteration = project_info['current_iteration_number']
 
-        num_iterations = int(ceil(last_num_weeks / iteration_length))
-
-        iteration_end = current_iteration_number - 1
-        iteration_start = iteration_end - num_iterations - 1
-
-        if iteration_start < 1:
-            # adjust number of iterations if attempting to get more iterations than available
-            num_iterations += iteration_start
-            iteration_start = 1
+        iteration_start = int(weeks / iteration_length)
+        iteration_end = int(iteration_start + 12 / iteration_length)
+        if iteration_end > current_iteration:
+            iteration_end = current_iteration
+        num_iterations = iteration_end - iteration_start
 
         return iteration_start, num_iterations
 
-    def get_metrics(self, last_num_weeks=None):
+    def get_metrics(self, year=None, quarter=None):
         print("Pivotal")
 
         iteration_start = num_iterations = 0
 
-        if last_num_weeks:
-            iteration_start, num_iterations = self.get_iteration_range(last_num_weeks)
+        if year and quarter:
+            iteration_start, num_iterations = self.get_iteration_range(year, quarter)
 
         print("iterations: {} to {}".format(iteration_start, iteration_start + num_iterations))
 
