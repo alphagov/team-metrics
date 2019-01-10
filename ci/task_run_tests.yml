@@ -1,0 +1,24 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: amidos/dcind
+inputs:
+  - name: git-repo
+run:
+  path: sh
+  args:
+    - -exc
+    - |
+      source /docker-lib.sh
+
+      start_docker
+
+      cd git-repo
+
+      docker-compose build 
+      docker-compose up --abort-on-container-exit
+
+      docker-compose down
+      docker volume rm $(docker volume ls -q)

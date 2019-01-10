@@ -1,0 +1,17 @@
+---
+resources:
+- name: git-repo
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/alphagov/team-metrics.git
+
+jobs:
+- name: Unit Tests
+  public: false
+  plan:
+    - get: git-repo
+      trigger: true
+    - task: Run Unit Tests
+      privileged: true
+      file: git-repo/ci/task_run_tests.yml
