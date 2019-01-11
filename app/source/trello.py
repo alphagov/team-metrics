@@ -12,7 +12,7 @@ from app.source import Base, get_time_diff, get_process_cycle_efficiency
 #
 # The following rules are based on RE Observe trello board:
 #
-# How do we get access to other lists? we have to unarchive them, 
+# How do we get access to other lists? we have to unarchive them,
 # or find them in the archived list and check if the dates correspond to a quarter time range
 # presume a quarter starts from October - End December/First week of Jan
 #
@@ -23,9 +23,9 @@ def get_quarter_start(year, quarter):
     # but for now just return back 2018 Q3
     return '2018-10-08'
 
-# 
+#
 # Different quarters are split into different boards, eg Team name - Q1
-# 
+#
 # Actually we use the same board but archive the Done lists, these are eventually deleted
 # Boards are renamed for teh quarter
 #
@@ -73,21 +73,25 @@ class Trello(Base):
             token=self.token,
         )
 
-    def get_start_and_end_dates(self, card):
-        if not card.list_movements():
-            return None, None
-
+    def get_in_progress_time(self, card):
         movements = sorted(card.list_movements(), key=lambda d: d['datetime'])
 
-        started_at = signed_off_at = None
+        in_progress_start = []
+        in_progress_end = []
 
         for movement in movements:
             if re.match(DOING, movement['destination']['name']):
-                started_at = movement['datetime']
-            if re.match(SIGN_OFF, movement['destination']['name']):
-                signed_off_at = movement['datetime']
+                in_progress_start.append(movement['datetime'])
+            if re.match(DOING, movement['source']['name']):
+                in_progress_end.append(movement['datetime'])
 
-        return started_at, signed_off_at
+        if in_progress_start and in_progress_end:
+            in_progress_time = timedelta()
+            for i, start in enumerate(in_progress_start):
+                end = in_progress_end[i]
+                in_progress_time += get_time_diff(start, end)
+
+            return in_progress_time
 
     def get_blocked_time(self, card):
         movements = sorted(card.list_movements(), key=lambda d: d['datetime'])
@@ -102,21 +106,18 @@ class Trello(Base):
                 blocked_end.append(movement['datetime'])
 
         if blocked_start and blocked_end:
-            blocked_time = None
+            blocked_time = timedelta()
             for i, start in enumerate(blocked_start):
                 end = blocked_end[i]
-                time_diff = get_time_diff(start, end)
-                if blocked_time:
-                    blocked_time += time_diff
-                else:
-                    blocked_time = time_diff
+                blocked_time += get_time_diff(start, end)
 
             return blocked_time
+        return timedelta()
 
     def get_cards_incomplete(self, lists, start_date, end_date):
         # incomplete stories are in TO_DO, IN_PROGRESS or BLOCKED after the sprint end date
         # to calculate incomplete cards within a sprint we need to go through each card
-        # when the card gets moved to Done, we will probably have to revisit all the cards to 
+        # when the card gets moved to Done, we will probably have to revisit all the cards to
         # see how long they spent in each list during the sprint
 
         # end of sprint time should be just before midnight
@@ -211,13 +212,13 @@ class Trello(Base):
             for card in _list.list_cards():
                 print("    {}".format(card.name))
 
-                started_at, signed_off_at = self.get_start_and_end_dates(card)
+                in_progress_time = self.get_in_progress_time(card)
+                blocked_time = self.get_blocked_time(card)
 
-                if started_at and signed_off_at:
-                    cycle_time += get_time_diff(started_at, signed_off_at)
+                cycle_time += in_progress_time + blocked_time
 
-                    process_cycle_efficiency += get_process_cycle_efficiency(
-                                    cycle_time, self.get_blocked_time(card))
+                process_cycle_efficiency += get_process_cycle_efficiency(
+                                cycle_time, blocked_time)
 
             cards_in_done = len(_list.list_cards())
 

@@ -173,6 +173,71 @@ def test_trello_get_metrics(mocker):
     assert metrics[0].process_cycle_efficiency == 1
 
 
+def test_multi_sign_off_entries(mocker):
+    sprint_name = 'Done (week 1)'
+    lists = [
+        {
+            'name': 'TM Q3 sprints',
+            'cards': [
+                {
+                    'name': sprint_name,
+                    'description': '2019-01-07 - 2019-01-13'
+                }
+            ]
+        },
+        {
+            'name': sprint_name,
+            'cards': [
+                {
+                    'name': 'card done',
+                    'movements': [
+                        {
+                            'datetime': '2019-01-08T10:00:00',
+                            'source': 'Backlog',
+                            'destination': 'Sprint 1 - TO DO'
+                        },
+                        {
+                            'datetime': '2019-01-08T11:00:00',
+                            'source': 'Sprint 1 - TO DO',
+                            'destination': 'In Progress'
+                        },
+                        {
+                            'datetime': '2019-01-08T12:00:00',
+                            'source': 'In Progress',
+                            'destination': 'Sign off'
+                        },
+                        {
+                            'datetime': '2019-01-08T13:00:00',
+                            'source': 'Sign off',
+                            'destination': 'In Progress'
+                        },
+                        {
+                            'datetime': '2019-01-08T14:00:00',
+                            'source': 'In Progress',
+                            'destination': 'Sign off'
+                        },
+                        {
+                            'datetime': '2019-01-08T15:00:00',
+                            'source': 'Sign off',
+                            'destination': sprint_name
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+
+    mock_trello_client(mocker, lists=lists)
+
+    t = Trello()
+    metrics = t.get_metrics()
+
+    assert len(metrics) == 1
+    assert metrics[0].num_completed == 1
+    assert metrics[0].process_cycle_efficiency == 1
+    assert metrics[0].avg_cycle_time == 7200
+
+
 @pytest.mark.parametrize('list_name', [
     'In Progress', 'Blocked'
 ])
