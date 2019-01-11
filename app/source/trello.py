@@ -61,12 +61,12 @@ COMPLETED_TRELLO_LIST = r"{}|{}".format(SIGN_OFF, DONE)
 
 class Trello(Base):
 
-    def __init__(self, board_id=None, list_id=None):
+    def __init__(self, board_id=None, sprint_id=None):
         self.pat = os.environ['TM_TRELLO_PAT']
         self.token = os.environ['TM_TRELLO_TOKEN']
         self.org_id = os.environ['TM_TRELLO_ORG_ID']
         self.board_id = board_id
-        self.list_id = list_id
+        self.sprint_id = sprint_id
 
         self.trello = TrelloClient(
             api_key=self.pat,
@@ -78,6 +78,9 @@ class Trello(Base):
 
         in_progress_start = []
         in_progress_end = []
+
+        if re.match(DOING, movements[0]['source']['name']):
+            in_progress_start.append(card.created_date) if card.created_date else None
 
         for movement in movements:
             if re.match(DOING, movement['destination']['name']):
@@ -201,7 +204,7 @@ class Trello(Base):
         metrics = []
 
         for _list in done_lists:
-            if self.list_id and _list.id != self.list_id:
+            if self.sprint_id and _list.id != self.sprint_id:
                 continue
 
             print("  {}".format(_list.name))
@@ -213,6 +216,11 @@ class Trello(Base):
                 print("    {}".format(card.name))
 
                 in_progress_time = self.get_in_progress_time(card)
+
+                if not in_progress_time:
+                    print('*** no progress on card', card.name)
+                    continue
+
                 blocked_time = self.get_blocked_time(card)
 
                 cycle_time += in_progress_time + blocked_time
