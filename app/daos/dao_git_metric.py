@@ -1,4 +1,4 @@
-from sqlalchemy import and_, or_
+from sqlalchemy import and_
 
 from app import db
 from app.models import GitMetric

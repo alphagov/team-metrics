@@ -14,7 +14,10 @@ class Github(Base):
     def __init__(self, team_id=None):
         self.team_id = team_id if team_id else os.getenv("TM_TEAM_ID")
 
-        self.gh = login(token=os.environ['TM_GITHUB_PAT'])
+        self.gh = self.gh_login(os.environ['TM_GITHUB_PAT'])
+
+    def gh_login(token):
+        login(token)
 
     def get_metrics(self, year=None, quarter=None):
         i = 0
@@ -76,7 +79,7 @@ class Github(Base):
                             'total_diff_count': total_diff,
                             'comments_count': full_pr.comments_count + full_pr.review_comments_count,
                         })
-                        
+
                         i += 1
                     # break
                 # if i > 10:

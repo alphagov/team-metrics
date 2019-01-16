@@ -25,7 +25,7 @@ def test_dao_get_git_metrics(dbsession):
 
 
 def test_dao_get_git_metric_between_narrow_daterange(sample_git_metrics):
-    metrics = dao_get_git_metrics_between_daterange(sample_git_metrics[0]['team_id'], '2018-11-14T12:00', '2018-11-17T12:00')
+    metrics = dao_get_git_metrics_between_daterange(sample_git_metrics[0]['team_id'], '2018-11-17T12:00', '2018-11-18T12:00')
     assert len(metrics) == 1
 
 
@@ -35,7 +35,7 @@ def test_dao_get_git_metric_between_wider_daterange(sample_git_metrics):
 
 
 def test_dao_get_git_metric_between_wider_daterange_midweek(sample_git_metrics):
-    git_metrics = dao_get_git_metrics_between_daterange(sample_git_metrics[0]['team_id'], '2018-11-12T12:00', '2018-11-20T12:00')
+    git_metrics = dao_get_git_metrics_between_daterange(sample_git_metrics[0]['team_id'], '2018-11-01T12:00', '2018-11-21T12:00')
     assert len(git_metrics) == 2
 
 

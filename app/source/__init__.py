@@ -57,9 +57,9 @@ def get_datetime(datetime_str):
     if matched_datetime:
         return datetime.strptime(matched_datetime.group(1), DATETIME_FORMAT)
 
+def get_date_string(date_and_time):
+    matched_date = re.search(DATE_PATTERN, str(date_and_time))
 
-def get_date_string(datetime_str):
-    matched_date = re.search(DATE_PATTERN, str(datetime_str))
     if matched_date:
         date_str = matched_date.group(1)
         if matched_date.group(2) == "23:00:00":
@@ -68,7 +68,7 @@ def get_date_string(datetime_str):
             from_zone = tz.gettz('UTC')
             to_zone = tz.gettz('Europe/London')
 
-            # Tell the datetime object that it's in UTC time zone since 
+            # Tell the datetime object that it's in UTC time zone since
             # datetime objects are 'naive' by default
             utc = utc_time.replace(tzinfo=from_zone)
 
