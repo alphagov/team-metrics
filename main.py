@@ -30,7 +30,7 @@ def main():
 
         db.init()
 
-        metrics = m.get_metrics(last_num_weeks=12)
+        metrics = m.get_metrics()
         for metric in metrics:
             write_csv_line(key, metric)
             dao_upsert_sprint(metric)
