@@ -5,6 +5,14 @@ resources:
   source:
     branch: master
     uri: https://github.com/alphagov/team-metrics.git
+- name: deploy
+  type: cf
+  source:
+    api: https://api.cloud.service.gov.uk
+    username: ((cloud_foundry_username))
+    password: ((cloud_foundry_password))
+    organization: gds-tech-ops
+    space: traceability
 
 jobs:
 - name: Unit Tests
@@ -13,5 +21,53 @@ jobs:
     - get: git-repo
       trigger: true
     - task: Run Unit Tests
-      privileged: true
-      file: git-repo/ci/task_run_tests.yml
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: amidos/dcind
+        inputs:
+          - name: git-repo
+        run:
+          path: sh
+          args:
+            - -exc
+            - |
+              source /docker-lib.sh
+
+              start_docker
+
+              cd git-repo
+
+              docker-compose build 
+              docker-compose up --abort-on-container-exit
+
+              docker-compose down
+              docker volume rm $(docker volume ls -q)
+    - task: Run Unit Tests
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: node
+            tag: 10.13.0
+        inputs:
+          - name: git-repo
+        outputs:
+          - name: git-repo-built
+        run:
+          path: sh
+          args:
+            - -exc
+            - |
+              cp -r git-repo/* git-repo-built/
+              cd git-repo-built
+              ./install-frontend-assets.sh
+              npx webpack
+    - put: deploy
+      params:
+        manifest: git-repo-built/manifest.yml
+        show_app_log: true
+        path: git-repo-built
