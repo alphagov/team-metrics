@@ -13,6 +13,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.metrics import Metrics
 from app.daos.dao_team_metric import dao_add_sprint
+from app.daos.dao_git_metric import dao_upsert_git_metric
 
 TEST_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI') + '_test'
 
@@ -114,4 +115,37 @@ def sample_metrics(dbsession):
     metrics.append(m2)
     dao_add_sprint(m1)
     dao_add_sprint(m2)
+    return metrics
+
+
+@pytest.fixture
+def sample_git_metrics(dbsession):
+    metrics = []
+
+    m1 = {
+        'team_id': 'fake_team_id',
+        'repo_url': 'https://www.repo.url',
+        'pr_number': '4',
+        'start_date': '2018-11-09T12:00',
+        'end_date': '2018-11-16T12:00',
+        'diff_count': 90,
+        'total_diff_count': 100,
+        'comments_count': 5,
+    }
+    m2 = {
+        'team_id': 'fake_team_id',
+        'repo_url': 'https://www.repo.url',
+        'pr_number': '5',
+        'start_date': '2018-11-17T12:00',
+        'end_date': '2018-11-18T12:00',
+        'diff_count': 0,
+        'total_diff_count': 100,
+        'comments_count': 0,
+    }
+    metrics = []
+    metrics.append(m1)
+    metrics.append(m2)
+
+    dao_upsert_git_metric(m1)
+    dao_upsert_git_metric(m2)
     return metrics

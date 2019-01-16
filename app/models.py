@@ -2,9 +2,10 @@ import os
 import uuid
 from datetime import timedelta
 
-from sqlalchemy import Column, Float, Integer, String, DateTime
+from sqlalchemy import Column, Float, Integer, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -33,4 +34,29 @@ class TeamMetric(Base):
             'process_cycle_efficiency': self.process_cycle_efficiency,
             'num_completed': self.num_completed,
             'num_incomplete': self.num_incomplete
+        }
+
+
+class GitMetric(Base):
+    __tablename__ = "git_metric"
+
+    team_id = Column(String, index=False, nullable=False, primary_key=True)
+    repo_url = Column(String, index=False, nullable=False, primary_key=True)
+    pr_number = Column(Integer, index=False, nullable=False, primary_key=True)
+    start_date = Column(DateTime, index=False, nullable=False, primary_key=False)
+    end_date = Column(DateTime, index=False, nullable=False, primary_key=False)
+    diff_count = Column(Integer, index=False, nullable=False, primary_key=False)
+    total_diff_count = Column(Integer, index=False, nullable=False, primary_key=False)
+    comments_count = Column(Integer, index=False, nullable=True, primary_key=False)
+
+    def serialize(self):
+        return {
+            'team_id': self.team_id,
+            'repo_url': self.repo_url,
+            'pr_number': self.pr_number,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
+            'diff_count': self.diff_count,
+            'total_diff_count': self.total_diff_count,
+            'comments_count': self.comments_count,
         }

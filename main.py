@@ -38,7 +38,11 @@ def main():
         dump_json(key, metrics)
 
     if len(sys.argv) > 1:
-        get_metrics(sys.argv[1], None if len(sys.argv) <= 2 else sys.argv[2])
+        if sys.argv[1] == "gt":
+            github = Github()
+            github.get_teams()
+        else:
+            get_metrics(sys.argv[1], None if len(sys.argv) <= 2 else sys.argv[2])
     else:
         while True:
             choice = input("\nCollect team metrics from (j)ira, (p)ivotal, (t)rello, (g)ithub, (a)ll, e(x)it:")
