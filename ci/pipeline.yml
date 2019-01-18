@@ -1,11 +1,11 @@
 ---
 resources:
-- name: git-repo
+- name: team-metrics-git
   type: git
   source:
     branch: master
     uri: https://github.com/alphagov/team-metrics.git
-- name: deploy
+- name: deploy-to-paas
   type: cf
   source:
     api: https://api.cloud.service.gov.uk
@@ -15,12 +15,13 @@ resources:
     space: traceability
 
 jobs:
-- name: Unit Tests
+- name: test-and-build
   public: false
   plan:
-    - get: git-repo
+    - get: team-metrics-git
       trigger: true
-    - task: Run Unit Tests
+    - task: run-unit-tests
+      privileged: true
       config:
         platform: linux
         image_resource:
@@ -28,24 +29,21 @@ jobs:
           source:
             repository: amidos/dcind
         inputs:
-          - name: git-repo
+          - name: team-metrics-git
         run:
           path: sh
           args:
             - -exc
             - |
               source /docker-lib.sh
-
               start_docker
 
-              cd git-repo
+              cd team-metrics-git
 
-              docker-compose build 
+              docker-compose build
               docker-compose up --abort-on-container-exit
 
-              docker-compose down
-              docker volume rm $(docker volume ls -q)
-    - task: Run Unit Tests
+    - task: build-assets
       config:
         platform: linux
         image_resource:
@@ -54,20 +52,21 @@ jobs:
             repository: node
             tag: 10.13.0
         inputs:
-          - name: git-repo
+          - name: team-metrics-git
         outputs:
-          - name: git-repo-built
+          - name: team-metrics-git-built
         run:
           path: sh
           args:
             - -exc
             - |
-              cp -r git-repo/* git-repo-built/
-              cd git-repo-built
+              cp -r team-metrics-git/* team-metrics-git-built/
+              cd team-metrics-git-built
               ./install-frontend-assets.sh
               npx webpack
-    - put: deploy
+
+    - put: deploy-to-paas
       params:
-        manifest: git-repo-built/manifest.yml
+        manifest: team-metrics-git-built/manifest.yml
         show_app_log: true
-        path: git-repo-built
+        path: team-metrics-git-built
