@@ -31,11 +31,13 @@ def main():
         db.init()
 
         metrics = m.get_metrics(year=2018, quarter=3)
-        for metric in metrics:
-            write_csv_line(key, metric)
-            dao_upsert_sprint(metric)
 
-        dump_json(key, metrics)
+        if choice != 'g':
+            for metric in metrics:
+                write_csv_line(key, metric)
+                dao_upsert_sprint(metric)
+
+            dump_json(key, metrics)
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "gt":
