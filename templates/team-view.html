@@ -64,24 +64,24 @@
         <td class="govuk-table__cell">{{ metric.num_incomplete }}</td>
         {% endfor %}
     </tr>
-    <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Number Of People Days</th>
-        {% for i in range(metrics|length) %}
-        <td class="govuk-table__cell">-</td>
+    {% if metrics[0].repos %}
+    <tr class="govuk-table__row" style='vertical-align: top'>
+        <th class="govuk-table__header" scope="row">Code rework (source: github)</th>
+        {% for metric in metrics %}
+        <td class="govuk-table__cell">
+            <div style='margin-bottom:10px;'>Total: {{ '%0.2f' % (metric.code_rework) }}</div>
+            <table>
+            {% for r_metric in metric.repos %}
+                <tr>
+                    <td><a href="{{ r_metric.url }}">{{ r_metric.name }}</a></td>
+                    <td>{{ '%0.2f' % (r_metric.code_rework) }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        </td>
         {% endfor %}
     </tr>
-    <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Mean Time To Recovery (MTTR)</th>
-        {% for i in range(metrics|length) %}
-        <td class="govuk-table__cell">-</td>
-        {% endfor %}
-    </tr>
-    <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Number Of Releases</th>
-        {% for i in range(metrics|length) %}
-        <td class="govuk-table__cell">-</td>
-        {% endfor %}
-    </tr>
+    {% endif %}
     </tbody>
 </table>
 {% endif %}
