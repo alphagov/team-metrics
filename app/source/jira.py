@@ -7,7 +7,7 @@ from jira.exceptions import JIRAError
 from jira.resources import GreenHopperResource
 
 from app.metrics import Metrics
-from app.source import Base, get_datetime, get_process_cycle_efficiency, get_time_diff
+from app.source import Base, get_datetime, get_process_cycle_efficiency, get_time_diff, get_quarter_daterange
 
 
 class Jira(Base):
@@ -64,7 +64,10 @@ class Jira(Base):
 
             return blocked_time
 
-    def get_metrics(self, last_num_weeks=None):
+    def get_metrics(self, year=None, quarter=None):
+        if year and quarter:
+            q_start, q_end = get_quarter_daterange(year, quarter)
+
         metrics = []
         projects = self.jira.projects()
         for project in projects:
@@ -83,10 +86,10 @@ class Jira(Base):
                             continue
 
                         # sprints before
-                        if (last_num_weeks and (
-                                sprint.raw['startDate'] <
-                                str(datetime.today() - timedelta(weeks=last_num_weeks) - timedelta(weeks=2)) or 
-                                sprint.raw['startDate'] > str(datetime.today() - timedelta(weeks=2)))
+                        if (year and quarter and (
+                                sprint.raw['startDate'] < q_start.strftime('%Y-%m-%dT%H:%M:%S') or
+                                sprint.raw['startDate'] > q_end.strftime('%Y-%m-%dT%H:%M:%S')
+                            )
                         ):
                             continue
 

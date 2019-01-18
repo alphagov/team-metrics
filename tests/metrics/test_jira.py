@@ -281,35 +281,12 @@ def test_get_jira_metrics_for_last_12_weeks(mocker):
     mock_jira_client(mocker, issue)
 
     j = Jira(project_id='test_project')
-    metrics = j.get_metrics(last_num_weeks=12)
+    metrics = j.get_metrics(year=2018, quarter=3)
 
     assert len(metrics) == 1
     assert metrics[0].avg_cycle_time == (
         get_datetime(history[1]['created']) - get_datetime(history[0]['created'])).total_seconds()
     assert metrics[0].process_cycle_efficiency == 1
-
-
-@freeze_time("2018-12-01 12:00:00")
-def test_get_no_metrics_for_last_2_weeks(mocker):
-    history = [
-        {
-            'created': '2018-11-01T12:00:00',
-            'toString': 'In Progress'
-        },
-        {
-            'created': '2018-11-02T12:00:00',
-            'toString': 'Done'
-        },
-    ]
-
-    issue = mock_issue(history)
-
-    mock_jira_client(mocker, issue)
-
-    j = Jira(project_id='test_project')
-    metrics = j.get_metrics(last_num_weeks=2)
-
-    assert not metrics
 
 
 def test_get_jira_metrics_with_blocker(mocker):

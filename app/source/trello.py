@@ -180,7 +180,7 @@ class Trello(Base):
 
         return incomplete_count
 
-    def get_metrics(self, last_num_weeks=None):
+    def get_metrics(self, year=None, quarter=None):
         board = self.trello.get_board(self.board_id)
         print(board.name)
 
