@@ -19,13 +19,13 @@ def dao_get_git_metrics_between_daterange(team_id, start_date, end_date):
 def dao_upsert_git_metric(metric):
     db_metric = db.Session().query(GitMetric).filter_by(
         team_id=metric["team_id"],
-        repo_url=metric["repo_url"],
+        name=metric["name"],
         pr_number=metric["pr_number"]).first()
 
     if db_metric:
         db.update(
             GitMetric,
-            filters={'team_id': metric["team_id"], 'repo_url': metric["repo_url"], 'pr_number': metric["pr_number"]},
+            filters={'team_id': metric["team_id"], 'name': metric["name"], 'pr_number': metric["pr_number"]},
             **metric
         )
     else:

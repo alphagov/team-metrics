@@ -81,7 +81,7 @@ class Github(Base):
 
                     dao_upsert_git_metric({
                         'team_id': os.getenv("TM_GITHUB_TEAM_ID"),
-                        'repo_url': repo.html_url,
+                        'name': repo.name,
                         'pr_number': pr.number,
                         'start_date': pr.created_at,
                         'end_date': pr.merged_at,
