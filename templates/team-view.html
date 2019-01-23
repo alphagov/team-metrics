@@ -35,13 +35,13 @@
     </thead>
     <tbody class="govuk-table__body">
     <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Cycle Time (source: {{ metrics[0].source }})</th>
+        <th class="govuk-table__header" scope="row">Cycle Time<br>(source: {{ metrics[0].source }})</th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">{{ metric.avg_cycle_time }}</td>
         {% endfor %}
     </tr>
     <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Process Cycle Efficiency (source: {{ metrics[0].source }})</th>
+        <th class="govuk-table__header" scope="row">Process Cycle Efficiency<br>(source: {{ metrics[0].source }})</th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">
             {% if metric.process_cycle_efficiency is string %}
@@ -53,35 +53,46 @@
         {% endfor %}
     </tr>
     <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Number Of Stories Completed (source: {{ metrics[0].source }})</th>
+        <th class="govuk-table__header" scope="row">Number Of Stories Completed<br>(source: {{ metrics[0].source }})</th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">{{ metric.num_completed }}</td>
         {% endfor %}
     </tr>
     <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Number Of Stories Incomplete (source: {{ metrics[0].source }})</th>
+        <th class="govuk-table__header" scope="row">Number Of Stories Incomplete<br>(source: {{ metrics[0].source }})</th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">{{ metric.num_incomplete }}</td>
         {% endfor %}
     </tr>
-    <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Number Of People Days</th>
-        {% for i in range(metrics|length) %}
-        <td class="govuk-table__cell">-</td>
+    {% if metrics[0].repos %}
+    <tr class="govuk-table__row" style='vertical-align: top'>
+        <th class="govuk-table__header" scope="row">Code rework<br>(source: github)<div style='font-weight: normal; text-align: right'>rework% (#PRs)<br>#comments</div></th>
+        {% for metric in metrics %}
+        <td class="govuk-table__cell">
+            <div>Average: {{ '%0.2f' % (metric.code_rework) }}%</div>
+        </td>
         {% endfor %}
     </tr>
+    {% for metric in git_metrics %}
     <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Mean Time To Recovery (MTTR)</th>
-        {% for i in range(metrics|length) %}
-        <td class="govuk-table__cell">-</td>
+        <th class="govuk-table__header" style="text-align: right; font-weight:normal;" scope="row">
+            {{ metric.name }}
+        </th>
+        {% for sprint_metric in metric.sprints %}
+        <td class="govuk-table__cell">
+            {% if sprint_metric['code_rework'] == "-" %}
+            _
+            {% else %}
+            <a target='_github' href="{{ sprint_metric.url }}">
+                {{ '%0.2f' % (sprint_metric['code_rework']) }}% ({{ sprint_metric['num_prs'] }})
+            </a><br>
+            {{ sprint_metric['total_comments'] }}
+            {% endif %}
+        </td>
         {% endfor %}
     </tr>
-    <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Number Of Releases</th>
-        {% for i in range(metrics|length) %}
-        <td class="govuk-table__cell">-</td>
-        {% endfor %}
-    </tr>
+    {% endfor %}
+    {% endif %}
     </tbody>
 </table>
 {% endif %}

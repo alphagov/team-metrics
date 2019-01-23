@@ -5,6 +5,7 @@ freezegun==0.3.11
 github3.py==1.2.0
 gunicorn==19.7.1
 # jira==2.0.0
+pyyaml==3.13
 requests>=2.20.0
 requests-oauthlib==1.0.0
 requests-kerberos==0.12.0

@@ -13,7 +13,7 @@ def dao_get_sprints_between_daterange(_project_id, started_on, end_started_on):
             TeamMetric.project_id == _project_id,
             TeamMetric.started_on >= started_on,
             TeamMetric.started_on <= end_started_on,
-        )).all()
+        )).order_by(TeamMetric.started_on).all()
 
 
 def dao_add_sprint(metric):

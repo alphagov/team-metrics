@@ -19,7 +19,7 @@ def get_metrics_tool(choice, sprint_id=None):
     if choice in ['t', 'a']:
         return Trello(os.environ['TM_TRELLO_BOARD_ID'], sprint_id=sprint_id), os.environ['TM_TRELLO_BOARD_ID']
     if choice in ['g', 'a']:
-        return Github(), None
+        return Github(os.getenv("TM_GITHUB_TEAM_ID")), None
 
 
 def main():
@@ -31,14 +31,20 @@ def main():
         db.init()
 
         metrics = m.get_metrics(year=2018, quarter=3)
-        for metric in metrics:
-            write_csv_line(key, metric)
-            dao_upsert_sprint(metric)
 
-        dump_json(key, metrics)
+        if choice != 'g':
+            for metric in metrics:
+                write_csv_line(key, metric)
+                dao_upsert_sprint(metric)
+
+            dump_json(key, metrics)
 
     if len(sys.argv) > 1:
-        get_metrics(sys.argv[1], None if len(sys.argv) <= 2 else sys.argv[2])
+        if sys.argv[1] == "gt":
+            github = Github()
+            github.get_teams()
+        else:
+            get_metrics(sys.argv[1], None if len(sys.argv) <= 2 else sys.argv[2])
     else:
         while True:
             choice = input("\nCollect team metrics from (j)ira, (p)ivotal, (t)rello, (g)ithub, (a)ll, e(x)it:")
