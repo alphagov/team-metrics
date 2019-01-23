@@ -13,7 +13,7 @@ def dao_get_git_metrics_between_daterange(team_id, start_date, end_date):
             GitMetric.team_id == team_id,
             GitMetric.start_date >= start_date,
             GitMetric.start_date <= end_date,
-        )).all()
+        )).order_by(GitMetric.start_date).all()
 
 
 def dao_upsert_git_metric(metric):
