@@ -69,33 +69,38 @@ def paas_team_generate():
 @re_programme_blueprint.route('/teams/gds/delivery-and-support/technology-operations/reliability-engineering/observe', methods=['GET'])
 def observe_team():
     metrics_json = []
+    git_metrics = []
 
     q_start, q_end = get_quarter_daterange(2018, 3)
 
-    for metric in dao_get_sprints_between_daterange(TM_TRELLO_BOARD_ID, q_start, q_end):
+    sprints = dao_get_sprints_between_daterange(TM_TRELLO_BOARD_ID, q_start, q_end)
+
+    for metric in sprints:
         team_metric = metric.serialize()
 
         diff_count = total_diff_count = 0
         repos = []
 
         for gm in dao_get_git_metrics_between_daterange(TM_GITHUB_TEAM_ID, team_metric['started_on'], team_metric['ended_on']):
-            print(gm)
             if gm.total_diff_count > 0:
-                repo = [r for r in repos if r['url'] == gm.repo_url]
+                repo = [r for r in repos if r['name'] == gm.name]
                 if repo:
-                    print('found', gm.repo_url)
                     repo = repo[0]
                 else:
-                    print('not found', gm.repo_url)
                     repo = {}
-                    repo['name'] = gm.repo_url.split('/')[-1]
-                    repo['url'] = gm.repo_url
+                    repo['name'] = gm.name
+                    repo['num_prs'] = 0
                     repo['diff_count'] = 0
                     repo['total_diff_count'] = 0
+                    repo['total_comments'] = 0
                     repos.append(repo)
 
+                repo['num_prs'] += 1
                 repo['diff_count'] += gm.diff_count
                 repo['total_diff_count'] += gm.total_diff_count
+                repo['total_comments'] += gm.comments_count
+
+                repo['url'] = f"https://github.com/alphagov/{gm.name}/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aclosed+merged%3A{team_metric['started_on'].split(' ')[0]}..{team_metric['ended_on'].split(' ')[0]}"
 
                 diff_count += gm.diff_count
                 total_diff_count += gm.total_diff_count
@@ -103,15 +108,43 @@ def observe_team():
         for repo in repos:
             repo['code_rework'] = (repo['diff_count'] / repo['total_diff_count']) * 100
 
+            _git_metrics = [g for g in git_metrics if g['name'] == repo['name']]
+            if _git_metrics:
+                git_metric = _git_metrics[0]
+            else:
+                git_metric = {}
+                git_metric['name'] = repo['name']
+                git_metric['sprints'] = []
+                git_metrics.append(git_metric)
+
+            git_metric_sprint = {}
+            git_metric_sprint['start'] = team_metric['started_on']
+            git_metric_sprint['num_prs'] = repo['num_prs']
+            git_metric_sprint['code_rework'] = repo['code_rework']
+            git_metric_sprint['total_comments'] = repo['total_comments']
+            git_metric_sprint['url'] = f"https://github.com/alphagov/{repo['name']}/pulls?utf8=%E2%9C%93&q=merged%3A{team_metric['started_on'].split(' ')[0]}..{team_metric['ended_on'].split(' ')[0]}+is%3Apr+is%3Aclosed"
+
+            git_metric['sprints'].append(git_metric_sprint)
+
         team_metric['code_rework'] = (diff_count / total_diff_count) * 100
         team_metric['repos'] = repos
         metrics_json.append(team_metric)
+
+    # if a repo hasn't been worked on then set code_rework to -
+    for metric in git_metrics:
+        for team_metric in sprints:
+            if str(team_metric.started_on) not in [m['start'] for m in metric['sprints']]:
+                git_metric_sprint = {}
+                git_metric_sprint['start'] = str(team_metric.started_on)
+                git_metric_sprint['code_rework'] = '-'
+                metric['sprints'].append(git_metric_sprint)
+                metric['sprints'] = sorted(metric['sprints'], key=lambda m: m['start'])
 
     template = env.get_template('team-view.html')
     team = {'name': 'Reliability Engineering - Observe', 'details': 'Prometheus, Grafana and Logit', 'has_subteams': 'false' }
     breadcrumbs = re_breadcrumbs.copy()
     breadcrumbs.append({ 'link': '/teams/gds/delivery-and-support/technology-operations/reliability-engineering/observe', 'name': team['name'] })
-    return template.render(team=team, breadcrumbs=breadcrumbs, subteams=[], metrics=metrics_json)
+    return template.render(team=team, breadcrumbs=breadcrumbs, subteams=[], metrics=metrics_json, git_metrics=git_metrics)
 
 
 @re_programme_blueprint.route('/teams/gds/delivery-and-support/technology-operations/reliability-engineering/observe/generate', methods=['GET'])
@@ -120,11 +153,17 @@ def observe_team_generate():
 
     def generate_metrics():
         from app.source.trello import Trello
+        from app.source.github import Github
+
         trello = Trello(TM_TRELLO_BOARD_ID)
         metrics = trello.get_metrics(year=2018, quarter=3)
         for metric in metrics:
             dao_upsert_sprint(metric)
         print('Observe metrics generated')
+
+        gh = Github(TM_GITHUB_TEAM_ID)
+        gh.get_metrics(year=2018, quarter=3)
+        print('Observe git metrics generated')
 
     _thread.start_new_thread(generate_metrics, ())
 
