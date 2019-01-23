@@ -16,14 +16,6 @@ from app.source import Base, get_time_diff, get_process_cycle_efficiency
 # or find them in the archived list and check if the dates correspond to a quarter time range
 # presume a quarter starts from October - End December/First week of Jan
 #
-# Introduce a function to calculate the quarters date range including firebreak?
-
-def get_quarter_start(year, quarter):
-    # calculate from year the quarter part
-    # but for now just return back 2018 Q3
-    return '2018-10-08'
-
-#
 # Different quarters are split into different boards, eg Team name - Q1
 #
 # Actually we use the same board but archive the Done lists, these are eventually deleted
