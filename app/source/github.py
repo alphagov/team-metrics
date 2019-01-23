@@ -13,7 +13,12 @@ from app.daos.dao_git_metric import dao_upsert_git_metric
 
 
 class Github(Base):
-    def __init__(self):
+    def __init__(self, team_id=None):
+        if not team_id:
+            self.team_id = os.getenv("TM_GITHUB_TEAM_ID")
+        else:
+            self.team_id = team_id
+
         self.gh = login(token=os.environ['TM_GITHUB_PAT'])
 
     def get_teams(self):
@@ -32,7 +37,7 @@ class Github(Base):
             repos_yml = yaml.load(f)
 
         org = self.gh.organization("alphagov")
-        repositories = org.team(os.getenv("TM_GITHUB_TEAM_ID")).repositories()
+        repositories = org.team(self.team_id).repositories()
         for repo in repositories:
             if repo.name not in repos_yml['observe']['repos'].split(' '):
                 continue
@@ -47,7 +52,7 @@ class Github(Base):
                 continue
 
             for pr in prs:
-                # if repo.url == 'https://api.github.com/repos/alphagov/prometheus-aws-configuration-beta' and pr.number == 259:
+                # if repo.name == 'prometheus-aws-configuration-beta' and pr.number == 190:
                 #     import pdb; pdb.set_trace()
                 # else:
                 #     continue
@@ -80,14 +85,14 @@ class Github(Base):
                     full_pr = repo.pull_request(pr.number)
 
                     dao_upsert_git_metric({
-                        'team_id': os.getenv("TM_GITHUB_TEAM_ID"),
+                        'team_id': self.team_id,
                         'name': repo.name,
                         'pr_number': pr.number,
                         'start_date': pr.created_at,
                         'end_date': pr.merged_at,
                         'diff_count': diff_after_pr,
                         'total_diff_count': total_diff,
-                        'comments_count': full_pr.comments_count,
+                        'comments_count': full_pr.comments_count + full_pr.review_comments_count,
                     })
                     
                     i += 1
