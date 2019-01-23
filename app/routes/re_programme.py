@@ -126,7 +126,7 @@ def observe_team():
 
             git_metric['sprints'].append(git_metric_sprint)
 
-        team_metric['code_rework'] = (diff_count / total_diff_count) * 100
+        team_metric['code_rework'] = (diff_count / total_diff_count) * 100 if total_diff_count else 0
         team_metric['repos'] = repos
         metrics_json.append(team_metric)
 
