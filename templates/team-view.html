@@ -110,7 +110,7 @@
                                 label: "Observe code rework",
                                 backgroundColor: 'rgb(200, 200, 200)',
                                 borderColor: 'rgb(100, 100, 100)',
-                                data: [{% for metric in metrics %}{{ metric.code_rework }}, {% endfor %}],
+                                data: [{% for metric in metrics %}{{ '%0.2f' % (metric.code_rework) }}, {% endfor %}],
                             },
                             {% set counter = 0 %}
                             {% for metric in git_metrics %}
