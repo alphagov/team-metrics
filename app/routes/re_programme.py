@@ -82,28 +82,28 @@ def observe_team():
         repos = []
 
         for gm in dao_get_git_metrics_between_daterange(TM_GITHUB_TEAM_ID, team_metric['started_on'], team_metric['ended_on']):
-            if gm.total_diff_count > 0:
-                repo = [r for r in repos if r['name'] == gm.name]
-                if repo:
-                    repo = repo[0]
-                else:
-                    repo = {}
-                    repo['name'] = gm.name
-                    repo['num_prs'] = 0
-                    repo['diff_count'] = 0
-                    repo['total_diff_count'] = 0
-                    repo['total_comments'] = 0
-                    repos.append(repo)
+            repo = [r for r in repos if r['name'] == gm.name]
+            if repo:
+                repo = repo[0]
+            else:
+                repo = {}
+                repo['name'] = gm.name
+                repo['num_prs'] = 0
+                repo['diff_count'] = 0
+                repo['total_diff_count'] = 0
+                repo['total_comments'] = 0
+                repos.append(repo)
 
-                repo['num_prs'] += 1
+            if gm.total_diff_count > 0:
                 repo['diff_count'] += gm.diff_count
                 repo['total_diff_count'] += gm.total_diff_count
-                repo['total_comments'] += gm.comments_count
-
-                repo['url'] = f"https://github.com/alphagov/{gm.name}/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aclosed+merged%3A{team_metric['started_on'].split(' ')[0]}..{team_metric['ended_on'].split(' ')[0]}"
 
                 diff_count += gm.diff_count
                 total_diff_count += gm.total_diff_count
+
+            repo['num_prs'] += 1
+            repo['total_comments'] += gm.comments_count
+            repo['url'] = f"https://github.com/alphagov/{gm.name}/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aclosed+merged%3A{team_metric['started_on'].split(' ')[0]}..{team_metric['ended_on'].split(' ')[0]}"
 
         for repo in repos:
             repo['code_rework'] = (repo['diff_count'] / repo['total_diff_count']) * 100
