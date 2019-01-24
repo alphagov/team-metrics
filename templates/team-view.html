@@ -64,40 +64,77 @@
         <td class="govuk-table__cell">{{ metric.num_incomplete }}</td>
         {% endfor %}
     </tr>
-    {% if metrics[0].repos %}
+    {% if git_metrics %}
     <tr class="govuk-table__row" style='vertical-align: top'>
-        <th class="govuk-table__header" scope="row">Code rework<br>(source: github)<div style='font-weight: normal; text-align: right'>rework% (#PRs)<br>#comments</div></th>
+        <th class="govuk-table__header" scope="row">Code rework <span style='font-weight: normal'>(average)</span><br>(source: github)<div style='font-weight: normal; text-align: right'>rework% (#PRs)<br>#comments</div></th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">
-            <div>Average: {{ '%0.2f' % (metric.code_rework) }}%</div>
+            <div>{{ '%0.2f' % (metric.code_rework) }}%</div>
         </td>
         {% endfor %}
     </tr>
-    {% for metric in git_metrics %}
+        {% for metric in git_metrics %}
     <tr class="govuk-table__row">
         <th class="govuk-table__header" style="text-align: right; font-weight:normal;" scope="row">
             {{ metric.name }}
         </th>
-        {% for sprint_metric in metric.sprints %}
+            {% for sprint_metric in metric.sprints %}
         <td class="govuk-table__cell">
-            {% if sprint_metric['code_rework'] == "-" %}
+                {% if sprint_metric['code_rework'] == "-" %}
             _
-            {% else %}
+                {% else %}
             <a target='_github' href="{{ sprint_metric.url }}">
-                {{ '%0.2f' % (sprint_metric['code_rework']) }}% ({{ sprint_metric['num_prs'] }})
+                    {{ '%0.2f' % (sprint_metric['code_rework']) }}% ({{ sprint_metric['num_prs'] }})
             </a><br>
-            {{ sprint_metric['total_comments'] }}
-            {% endif %}
+                {{ sprint_metric['total_comments'] }}
+                {% endif %}
         </td>
-        {% endfor %}
+            {% endfor %}
     </tr>
-    {% endfor %}
+        {% endfor %}
+    <tr>
+        <td colspan="{{metrics|length + 1}}">
+            <canvas id="myChart"></canvas>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+            <script lang="javascript">
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var chart = new Chart(ctx, {
+                    // The type of chart we want to create
+                    type: 'bar',
+                
+                    // The data for our dataset
+                    data: {
+                        labels: [{% for metric in metrics %}"{{ metric.started_on[:10] }} - {{ metric.ended_on[:10] }}",{% endfor %}],
+                        datasets: [
+                            {
+                                label: "Observe code rework",
+                                backgroundColor: 'rgb(200, 200, 200)',
+                                borderColor: 'rgb(100, 100, 100)',
+                                data: [{% for metric in metrics %}{{ metric.code_rework }}, {% endfor %}],
+                            },
+                            {% set counter = 0 %}
+                            {% for metric in git_metrics %}
+                            {
+                                label: "{{ metric.name }}",
+                                backgroundColor: 'rgb({{ 50 + loop.index * 20 }}, {{ 50 + loop.index * 30 }}, {{ 50 + loop.index * 30 }})',
+                                borderColor: 'rgb(100, {{ 100 + loop.index * 10 }}, {{ 150 + loop.index * 10 }})',
+                                data: [{% for sprint_metric in metric.sprints %}{% if sprint_metric.code_rework == '-' %}0{% else %}{{ '%0.2f' % (sprint_metric.code_rework) }}{% endif %}, {% endfor %}],
+                            },
+                            {% set counter = counter + git_metrics|length %}
+                            {% endfor %}
+                        ]
+                    },
+                
+                    // Configuration options go here
+                    options: {}
+                });
+            </script>
+        </td>
+    </tr>
     {% endif %}
     </tbody>
 </table>
 {% endif %}
-
-<a href="#" role="button" draggable="false" class="govuk-button govuk-button--start">Explore</a>
 
 {{ macros.listSubteams(team, subteams) }}
 
