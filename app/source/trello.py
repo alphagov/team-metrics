@@ -16,10 +16,9 @@ from app.source import Base, get_time_diff, get_process_cycle_efficiency
 # or find them in the archived list and check if the dates correspond to a quarter time range
 # presume a quarter starts from October - End December/First week of Jan
 #
-# Different quarters are split into different boards, eg Team name - Q1
+# We use the same board but archive the Done lists, these are eventually deleted
 #
-# Actually we use the same board but archive the Done lists, these are eventually deleted
-# Boards are renamed for teh quarter
+# Boards are renamed for each quarter
 #
 # Week dates will be imported as a key for the weeks works from list
 #  - TM week dates Q3
@@ -229,7 +228,7 @@ class Trello(Base):
                 self.board_id,
                 _list.id,
                 _list.start_date,
-                _list.end_date,
+                f"{_list.end_date} 23:59:59",
                 "trello",
                 0 if not cycle_time else cycle_time / cards_in_done,
                 (process_cycle_efficiency / cards_in_done) if cards_in_done else 0,
