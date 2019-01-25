@@ -1,6 +1,50 @@
 {% extends "layout.html" %}
 {% import "macros.html" as macros %}
 
+{% block head %}
+{{ super() }}
+<style>
+        .tooltip {
+          position: relative;
+          display: inline-block;
+          border-bottom: 1px dotted black;
+        }
+        
+        .tooltip .tooltiptext {
+          visibility: hidden;
+          width: 450px;
+          background-color: #555;
+          color: #fff;
+          text-align: center;
+          border-radius: 6px;
+          padding: 5px 0;
+          position: absolute;
+          z-index: 1;
+          bottom: 125%;
+          left: 50%;
+          margin-left: -60px;
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+        
+        .tooltip .tooltiptext::after {
+          content: "";
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          margin-left: -5px;
+          border-width: 5px;
+          border-style: solid;
+          border-color: #555 transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltiptext {
+          visibility: visible;
+          opacity: 1;
+        }
+        </style>
+{% endblock %}
+
 {% block content %}
 
 {{ macros.displayBreadcrumbs(breadcrumbs) }}
@@ -35,13 +79,28 @@
     </thead>
     <tbody class="govuk-table__body">
     <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Cycle Time<br>(source: {{ metrics[0].source }})</th>
+        <th class="govuk-table__header" scope="row">
+            <span class="tooltip">Cycle time
+                <span class="tooltiptext">
+                    Cycle time is calculated as: <BR>
+                        Time spent working on story to done
+                </span>
+            </span>        
+            <br>(source: {{ metrics[0].source }})</th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">{{ metric.avg_cycle_time }}</td>
         {% endfor %}
     </tr>
     <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Process Cycle Efficiency<br>(source: {{ metrics[0].source }})</th>
+        <th class="govuk-table__header" scope="row">
+            <span class="tooltip">Process Cycle Efficiency
+                <span class="tooltiptext">
+                    Process cycle efficiency is calculated as: <BR>
+                        ( (Cycle time - blocked time)<br> &divide; Total cycle time ) &times; 100
+                </span>
+            </span>
+            <br>(source: {{ metrics[0].source }})
+        </th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">
             {% if metric.process_cycle_efficiency is string %}
@@ -66,7 +125,17 @@
     </tr>
     {% if git_metrics %}
     <tr class="govuk-table__row" style='vertical-align: top'>
-        <th class="govuk-table__header" scope="row">Code rework <span style='font-weight: normal'>(average)</span><br>(source: github)<div style='font-weight: normal; text-align: right'>rework% (#PRs)<br>#comments</div></th>
+        <th class="govuk-table__header" scope="row">
+            <span class="tooltip">Code rework
+                <span class="tooltiptext">
+                    Code rework is calculated as: <br>
+                        (Total rework after PR created <br> &divide; Total rework on PR branch) &times; 100<br><br>
+                        Rework = number of lines added<br> + number of lines deleted
+                </span>
+            </span>
+            <span style='font-weight: normal'>(average)</span><br>(source: github)
+            <div style='font-weight: normal; text-align: right'>rework% (#PRs)<br>#comments</div>
+        </th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">
             <div>{{ '%0.2f' % (metric.code_rework) }}%</div>
@@ -107,7 +176,7 @@
                         labels: [{% for metric in metrics %}"{{ metric.started_on[:10] }} - {{ metric.ended_on[:10] }}",{% endfor %}],
                         datasets: [
                             {
-                                label: "Observe code rework",
+                                label: "Average code rework",
                                 backgroundColor: 'rgb(200, 200, 200)',
                                 borderColor: 'rgb(100, 100, 100)',
                                 data: [{% for metric in metrics %}{{ '%0.2f' % (metric.code_rework) }}, {% endfor %}],
