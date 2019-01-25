@@ -1,0 +1,32 @@
+superusers:
+  ken.tsang
+
+teams:
+- id: 1
+  name: observe
+  users:
+    ken.tsang
+  source:
+    type: trello
+    id: Z7dOu9Up
+  repos:
+    cf_app_discovery
+    gds_metrics_dropwizard
+    gds_metrics_python
+    gds_metrics_ruby
+    grafana-paas
+    paas-prometheus-exporter
+    prometheus-aws-configuration-beta
+    re-paas-ip-safelist-service
+
+- id: 2
+  name: paas
+  users:
+    ken.tsang
+  source:
+    type: pivotal
+    id: xxxxxx
+    git_team_id: xxxx
+  repos:
+    repo-3
+    repo-4
