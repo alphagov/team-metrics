@@ -41,6 +41,7 @@ class GitMetric(Base):
     __tablename__ = "git_metric"
 
     team_id = Column(String, index=False, nullable=False, primary_key=True)
+    team_name = Column(String, index=False, nullable=False, primary_key=False)
     name = Column(String, index=False, nullable=False, primary_key=True)
     pr_number = Column(Integer, index=False, nullable=False, primary_key=True)
     start_date = Column(DateTime, index=False, nullable=False, primary_key=False)
@@ -52,6 +53,7 @@ class GitMetric(Base):
     def serialize(self):
         return {
             'team_id': self.team_id,
+            'team_name': self.team_name,
             'name': self.name,
             'pr_number': self.pr_number,
             'start_date': self.start_date,

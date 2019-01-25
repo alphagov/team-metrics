@@ -124,6 +124,7 @@ def sample_git_metrics(dbsession):
 
     m1 = {
         'team_id': 'fake_team_id',
+        'team_name': 'fake_team_name',
         'name': 'repo_name',
         'pr_number': '4',
         'start_date': '2018-11-09T12:00',
@@ -134,6 +135,7 @@ def sample_git_metrics(dbsession):
     }
     m2 = {
         'team_id': 'fake_team_id',
+        'team_name': 'fake_team_name',
         'name': 'repo_name',
         'pr_number': '5',
         'start_date': '2018-11-17T12:00',

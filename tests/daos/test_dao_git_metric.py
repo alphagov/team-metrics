@@ -12,6 +12,7 @@ from app.daos.dao_git_metric import (
 def test_dao_get_git_metrics(dbsession):
     m1 = {
         'team_id': 'fake_team_id',
+        'team_name': 'fake_team_name',
         'name': 'repo_name',
         'pr_number': '4',
         'start_date': '2018-11-09T12:00',
@@ -44,6 +45,7 @@ def test_dao_get_git_metric_between_wider_daterange_midweek(sample_git_metrics):
 def test_upsert_git_metric_can_add_metric(dbsession):
     m = {
             'team_id': 'fake_team_id',
+            'team_name': 'fake_team_name',
             'name': 'repo_name',
             'pr_number': '4',
             'start_date': '2018-11-09T12:00',
@@ -63,6 +65,7 @@ def test_upsert_git_metric_can_add_metric(dbsession):
 def test_upsert_git_metric_can_update_metric(dbsession):
     m = {
             'team_id': 'fake_team_id',
+            'team_name': 'fake_team_name',
             'name': 'repo_name',
             'pr_number': '4',
             'start_date': '2018-11-09T12:00',
