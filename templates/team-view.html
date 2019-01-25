@@ -26,10 +26,10 @@
             {% if team['has_subteams'] == 'true' %}
                 Aggregated
             {% endif %}
-            Metrics
+            Metrics for Q3 2018-19
         </th>
         {% for metric in metrics %}
-        <th class="govuk-table__header" scope="col">Q3 2018-19: {{ metric.started_on[:10] }} - {{ metric.ended_on[:10] }}</th>
+        <th class="govuk-table__header" scope="col">{{ metric.started_on[:10] }} - {{ metric.ended_on[:10] }}</th>
         {% endfor %}
     </tr>
     </thead>
