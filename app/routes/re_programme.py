@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import json
 
 from flask import Blueprint
-from app.config import TM_TRELLO_BOARD_ID, TM_PIVOTAL_PROJECT_ID, TM_GITHUB_TEAM_ID
+from app.config import TM_TRELLO_BOARD_ID, TM_PIVOTAL_PROJECT_ID, TM_TEAM_ID
 from app.daos.dao_team_metric import dao_get_sprints_between_daterange, dao_upsert_sprint
 from app.daos.dao_git_metric import dao_get_git_metrics_between_daterange, dao_upsert_git_metric
 from app.routes import env, re_breadcrumbs
@@ -81,7 +81,7 @@ def observe_team():
         diff_count = total_diff_count = 0
         repos = []
 
-        for gm in dao_get_git_metrics_between_daterange(TM_GITHUB_TEAM_ID, team_metric['started_on'], team_metric['ended_on']):
+        for gm in dao_get_git_metrics_between_daterange(TM_TEAM_ID, team_metric['started_on'], team_metric['ended_on']):
             repo = [r for r in repos if r['name'] == gm.name]
             if repo:
                 repo = repo[0]
@@ -161,7 +161,7 @@ def observe_team_generate():
             dao_upsert_sprint(metric)
         print('Observe metrics generated')
 
-        gh = Github(TM_GITHUB_TEAM_ID)
+        gh = Github(TM_TEAM_ID)
         gh.get_metrics(year=2018, quarter=3)
         print('Observe git metrics generated')
 

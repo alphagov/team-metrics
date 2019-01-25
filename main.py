@@ -19,7 +19,7 @@ def get_metrics_tool(choice, sprint_id=None):
     if choice in ['t', 'a']:
         return Trello(os.environ['TM_TRELLO_BOARD_ID'], sprint_id=sprint_id), os.environ['TM_TRELLO_BOARD_ID']
     if choice in ['g', 'a']:
-        return Github(os.getenv("TM_GITHUB_TEAM_ID")), None
+        return Github(os.getenv("TM_TEAM_ID")), None
 
 
 def main():

@@ -14,7 +14,7 @@ from app.daos.dao_git_metric import dao_upsert_git_metric
 
 class Github(Base):
     def __init__(self, team_id=None):
-        self.team_id = team_id if team_id else os.getenv("TM_GITHUB_TEAM_ID")
+        self.team_id = team_id if team_id else os.getenv("TM_TEAM_ID")
 
         self.gh = login(token=os.environ['TM_GITHUB_PAT'])
 
