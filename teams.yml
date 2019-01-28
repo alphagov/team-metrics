@@ -25,8 +25,12 @@ teams:
     ken.tsang
   source:
     type: pivotal
-    id: xxxxxx
-    git_team_id: xxxx
-  repos:
-    repo-3
-    repo-4
+    id: '1275640'
+
+- id: 3
+  name: cyber-tooling
+  users:
+    ken.tsang
+  source:
+    type: jira
+    id: CT
