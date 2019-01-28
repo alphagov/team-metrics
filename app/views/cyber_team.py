@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 import json
 from flask import Blueprint
 
-from app.config import TM_JIRA_PROJECT
 from app.daos.dao_team_metric import dao_get_sprints_between_daterange, dao_upsert_sprint
 from app.views import env, cyber_breadcrumbs
 from app.source import get_quarter_daterange, get_team_profile
@@ -31,13 +30,15 @@ def cyber_team():
 
 @cyber_team_blueprint.route('/teams/gds/delivery-and-support/technology-operations/cyber/tooling', methods=['GET'])
 def cyber_tooling_team():
+    team = get_team_profile(CYBER_TOOLING_TEAM_ID)
+
     metrics_json = []
 
     q_start, q_end = get_quarter_daterange(2018, 3)
 
-    for metric in dao_get_sprints_between_daterange(TM_JIRA_PROJECT, q_start, q_end):
+    for metric in dao_get_sprints_between_daterange(team['source']['id'], q_start, q_end):
         metrics_json.append(metric.serialize())
-    
+
     template = env.get_template('team-view.html')
     team = {'name': 'Tooling', 'details': 'something something Cyber Tooling', 'has_subteams': 'false' }
     breadcrumbs = cyber_breadcrumbs.copy()
