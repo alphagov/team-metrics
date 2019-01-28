@@ -4,6 +4,7 @@ superusers:
 teams:
 - id: 1
   name: observe
+  path: gds/delivery-and-support/technology-operations/reliability-engineering/observe
   users:
     ken.tsang
   source:
@@ -21,6 +22,7 @@ teams:
 
 - id: 2
   name: paas
+  path: gds/delivery-and-support/technology-operations/reliability-engineering/paas
   users:
     ken.tsang
   source:
@@ -29,6 +31,7 @@ teams:
 
 - id: 3
   name: cyber-tooling
+  path: gds/delivery-and-support/technology-operations/cyber
   users:
     ken.tsang
   source:
