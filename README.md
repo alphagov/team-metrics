@@ -1,6 +1,31 @@
 # Team Metrics
 [Alpha] code to explore how we can collect and report on team metrics, running on PaaS: `https://team-metrics.cloudapps.digital`
 
+## How to see your team metrics
+
+Start by updating the `teams.yml` with your team information and creating a PR for review by the traceability team. 
+
+Example `teams.yml` entry:
+
+```
+teams:
+- id: 5  # needs to be unique in the teams.yml
+  name: support
+  # path is how you expect to get to your team page:
+  path: gds/delivery-and-support/technology-operations/reliability-engineering/support  
+  users:  # who needs to access the team metrics
+    john.smith
+  source:  # currently only jira, pivotal and trello are supported
+    type: pivotal
+    id: 112233
+  repos:  # not necessary if you don't have any repos in your team
+    ruby_repo_1
+    infrastructure_repo_2
+    python-repo-3
+```
+
+Someone from the traceability team will get in contact you to get access to your team delivery tool, e.g. pivotal, and based on your entry they will create the views necessary to show your team metrics.
+
 ## Deployment to PaaS
 
 The web app is currently deployed into the `traceability` space in `gds-tech-ops`, if you can't see the space, you will need to be added to the space: 
