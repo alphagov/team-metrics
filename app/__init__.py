@@ -39,11 +39,11 @@ def alembic_upgrade():
 
 
 def register_blueprint(application):
-    from app.routes.index import index_blueprint
-    from app.routes.cyber_team import cyber_team_blueprint
-    from app.routes.re_programme import re_programme_blueprint
-    from app.routes.techops_team import techop_team_blueprint
-    from app.routes.assets import assets_blueprint
+    from app.views.index import index_blueprint
+    from app.views.cyber_team import cyber_team_blueprint
+    from app.views.re_programme import re_programme_blueprint
+    from app.views.techops_team import techop_team_blueprint
+    from app.views.assets import assets_blueprint
 
     application.register_blueprint(index_blueprint)
     application.register_blueprint(cyber_team_blueprint)

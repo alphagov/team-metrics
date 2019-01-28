@@ -1,5 +1,5 @@
 from flask import Blueprint
-from app.routes import env
+from app.views import env
 
 index_blueprint = Blueprint('/', __name__)
 

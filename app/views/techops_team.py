@@ -1,7 +1,7 @@
 import json
 
 from flask import Blueprint
-from app.routes import env, techops_breadcrumbs
+from app.views import env, techops_breadcrumbs
 
 techop_team_blueprint = Blueprint('/teams/gds/delivery-and-support/technology-operations', __name__)
 

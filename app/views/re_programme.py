@@ -5,7 +5,7 @@ from flask import Blueprint
 from app.config import TM_TRELLO_BOARD_ID, TM_PIVOTAL_PROJECT_ID, TM_TEAM_ID
 from app.daos.dao_team_metric import dao_get_sprints_between_daterange, dao_upsert_sprint
 from app.daos.dao_git_metric import dao_get_git_metrics_between_daterange, dao_upsert_git_metric
-from app.routes import env, re_breadcrumbs
+from app.views import env, re_breadcrumbs
 from app.source import get_quarter_daterange, get_team_profile
 from app.source.metrics import get_metrics
 
