@@ -7,7 +7,7 @@ from github3.exceptions import NotFoundError
 import yaml
 
 from app.metrics import Metrics
-from app.source import Base, NotFound, get_quarter_daterange
+from app.source import Base, NotFound, get_quarter_daterange, get_team_profile
 
 from app.daos.dao_git_metric import dao_upsert_git_metric
 
@@ -22,15 +22,9 @@ class Github(Base):
         i = 0
         q_start, q_end = get_quarter_daterange(year, quarter)
 
-        with open('teams.yml') as f:
-            teams_yml = yaml.load(f)
+        team = get_team_profile(self.team_id)
 
-        team = [t for t in teams_yml['teams'] if str(t.get('id')) == self.team_id]
-
-        if not team:
-            raise NotFound(f"Team id {self.team_id} not found in teams.yml")
-
-        for yml_repo in team[0]['repos'].split(' '):
+        for yml_repo in team['repos'].split(' '):
             search_results = self.gh.search_repositories(query=f'archived:false org:alphagov {yml_repo} in:name')
 
             for repo in [r.repository for r in search_results]:
