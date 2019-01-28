@@ -3,11 +3,14 @@ import json
 from flask import Blueprint
 
 from app.config import TM_JIRA_PROJECT
-from app.daos.dao_team_metric import dao_get_sprints_between_daterange
+from app.daos.dao_team_metric import dao_get_sprints_between_daterange, dao_upsert_sprint
 from app.routes import env, cyber_breadcrumbs
-from app.source import get_quarter_daterange
+from app.source import get_quarter_daterange, get_team_profile
+from app.source.metrics import get_metrics
 
 cyber_team_blueprint = Blueprint('/teams/gds/delivery-and-support/technology-operations/cyber', __name__)
+
+CYBER_TOOLING_TEAM_ID = '3'
 
 
 @cyber_team_blueprint.route('/teams/gds/delivery-and-support/technology-operations/cyber', methods=['GET'])
@@ -46,14 +49,14 @@ def cyber_tooling_team():
 def cyber_tooling_team_generate():
     import _thread
 
+    team_profile = get_team_profile(CYBER_TOOLING_TEAM_ID)
+
     def generate_metrics():
-        from app.source.jira import Jira
-        from app.daos.dao_team_metric import dao_upsert_sprint
-        jira = Jira('CT')
-        metrics = jira.get_metrics(last_num_weeks=12)
+        metrics = get_metrics(team_profile['source']['type'], team_profile['source']['id'], 2018, 3)
+
         for metric in metrics:
             dao_upsert_sprint(metric)
-        print('CT metrics generated')
+        print('Cyber Tooling metrics generated')
 
     _thread.start_new_thread(generate_metrics, ())
 

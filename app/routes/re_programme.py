@@ -6,9 +6,13 @@ from app.config import TM_TRELLO_BOARD_ID, TM_PIVOTAL_PROJECT_ID, TM_TEAM_ID
 from app.daos.dao_team_metric import dao_get_sprints_between_daterange, dao_upsert_sprint
 from app.daos.dao_git_metric import dao_get_git_metrics_between_daterange, dao_upsert_git_metric
 from app.routes import env, re_breadcrumbs
-from app.source import get_quarter_daterange
+from app.source import get_quarter_daterange, get_team_profile
+from app.source.metrics import get_metrics
 
 re_programme_blueprint = Blueprint('/teams/gds/delivery-and-support/technology-operations/reliability-engineering', __name__)
+
+OBSERVE_TEAM_ID = '1'
+PAAS_TEAM_ID = '2'
 
 
 @re_programme_blueprint.route('/teams/gds/delivery-and-support/technology-operations/reliability-engineering', methods=['GET'])
@@ -31,11 +35,13 @@ def re_programme():
 
 @re_programme_blueprint.route('/teams/gds/delivery-and-support/technology-operations/reliability-engineering/paas', methods=['GET'])
 def paas_team():
+    team = get_team_profile(PAAS_TEAM_ID)
+
     metrics_json = []
 
     q_start, q_end = get_quarter_daterange(2018, 3)
 
-    for metric in dao_get_sprints_between_daterange(TM_PIVOTAL_PROJECT_ID, q_start, q_end):
+    for metric in dao_get_sprints_between_daterange(team['source']['id'], q_start, q_end):
         metrics_json.append(metric.serialize())
 
     template = env.get_template('team-view.html')
@@ -49,10 +55,11 @@ def paas_team():
 def paas_team_generate():
     import _thread
 
+    team_profile = get_team_profile(PAAS_TEAM_ID)
+
     def generate_metrics():
-        from app.source.pivotal import Pivotal
-        pivotal = Pivotal('1275640')
-        metrics = pivotal.get_metrics(year=2018, quarter=3)
+        metrics = get_metrics(team_profile['source']['type'], team_profile['source']['id'], 2018, 3)
+
         for metric in metrics:
             dao_upsert_sprint(metric)
         print('PaaS metrics generated')
@@ -68,12 +75,14 @@ def paas_team_generate():
 
 @re_programme_blueprint.route('/teams/gds/delivery-and-support/technology-operations/reliability-engineering/observe', methods=['GET'])
 def observe_team():
+    team = get_team_profile(OBSERVE_TEAM_ID)
+
     metrics_json = []
     git_metrics = []
 
     q_start, q_end = get_quarter_daterange(2018, 3)
 
-    sprints = dao_get_sprints_between_daterange(TM_TRELLO_BOARD_ID, q_start, q_end)
+    sprints = dao_get_sprints_between_daterange(team['source']['id'], q_start, q_end)
 
     for metric in sprints:
         team_metric = metric.serialize()
@@ -81,7 +90,7 @@ def observe_team():
         diff_count = total_diff_count = 0
         repos = []
 
-        for gm in dao_get_git_metrics_between_daterange(TM_TEAM_ID, team_metric['started_on'], team_metric['ended_on']):
+        for gm in dao_get_git_metrics_between_daterange(OBSERVE_TEAM_ID, team_metric['started_on'], team_metric['ended_on']):
             repo = [r for r in repos if r['name'] == gm.name]
             if repo:
                 repo = repo[0]
@@ -141,9 +150,9 @@ def observe_team():
                 metric['sprints'] = sorted(metric['sprints'], key=lambda m: m['start'])
 
     template = env.get_template('team-view.html')
-    team = {'name': 'Reliability Engineering - Observe', 'details': 'Prometheus, Grafana and Logit', 'has_subteams': 'false' }
+    team = {'name': 'Reliability Engineering - Observe', 'details': 'Prometheus, Grafana and Logit', 'has_subteams': 'false'}
     breadcrumbs = re_breadcrumbs.copy()
-    breadcrumbs.append({ 'link': '/teams/gds/delivery-and-support/technology-operations/reliability-engineering/observe', 'name': team['name'] })
+    breadcrumbs.append({'link': '/teams/gds/delivery-and-support/technology-operations/reliability-engineering/observe', 'name': team['name']})
     return template.render(team=team, breadcrumbs=breadcrumbs, subteams=[], metrics=metrics_json, git_metrics=git_metrics)
 
 
@@ -151,17 +160,17 @@ def observe_team():
 def observe_team_generate():
     import _thread
 
+    team_profile = get_team_profile(OBSERVE_TEAM_ID)
+
     def generate_metrics():
-        from app.source.trello import Trello
         from app.source.github import Github
 
-        trello = Trello(TM_TRELLO_BOARD_ID)
-        metrics = trello.get_metrics(year=2018, quarter=3)
+        metrics = get_metrics(team_profile['source']['type'], team_profile['source']['id'], 2018, 3)
         for metric in metrics:
             dao_upsert_sprint(metric)
         print('Observe metrics generated')
 
-        gh = Github(TM_TEAM_ID)
+        gh = Github(OBSERVE_TEAM_ID)
         gh.get_metrics(year=2018, quarter=3)
         print('Observe git metrics generated')
 
