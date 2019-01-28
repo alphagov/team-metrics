@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import re
-
+import yaml
 
 DATETIME_PATTERN = r'(^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}).*'
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
@@ -59,6 +59,18 @@ def get_process_cycle_efficiency(cycle_time, blocked_time=None):
         return (cycle_time - blocked_time) / cycle_time
 
     return 1  # no blocked time so 100% efficient
+
+
+def get_team_profile(team_id):
+    with open('teams.yml') as f:
+        teams_yml = yaml.load(f)
+
+    team = [t for t in teams_yml['teams'] if str(t.get('id')) == team_id]
+
+    if not team:
+        raise NotFound(f"Team id {team_id} not found in teams.yml")
+
+    return team[0]
 
 
 class Base:
