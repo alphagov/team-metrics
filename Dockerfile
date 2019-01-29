@@ -17,6 +17,8 @@ COPY gunicorn_config.py .
 COPY LICENSE .
 COPY alembic.ini .
 COPY pytest.ini .
+COPY teams.yml .
+COPY org-structure.yml .
 
 ENV FLASK_ENV="docker"
 
