@@ -71,6 +71,7 @@
                 Aggregated
             {% endif %}
             Metrics for Q3 2018-19
+            <br>(source: {{ metrics[0].source }})
         </th>
         {% for metric in metrics %}
         <th class="govuk-table__header" scope="col">{{ metric.started_on[:10] }} - {{ metric.ended_on[:10] }}</th>
@@ -86,7 +87,7 @@
                         Time spent working on story to done
                 </span>
             </span>        
-            <br>(source: {{ metrics[0].source }})</th>
+        </th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">{{ metric.avg_cycle_time }}</td>
         {% endfor %}
@@ -99,7 +100,7 @@
                         ( (Cycle time - blocked time)<br> &divide; Total cycle time ) &times; 100
                 </span>
             </span>
-            <br>(source: {{ metrics[0].source }})
+            <br>
         </th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">
@@ -112,13 +113,13 @@
         {% endfor %}
     </tr>
     <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Number Of Stories Completed<br>(source: {{ metrics[0].source }})</th>
+        <th class="govuk-table__header" scope="row">Number Of Stories Completed</th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">{{ metric.num_completed }}</td>
         {% endfor %}
     </tr>
     <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="row">Number Of Stories Incomplete<br>(source: {{ metrics[0].source }})</th>
+        <th class="govuk-table__header" scope="row">Number Of Stories Incomplete</th>
         {% for metric in metrics %}
         <td class="govuk-table__cell">{{ metric.num_incomplete }}</td>
         {% endfor %}
