@@ -11,6 +11,28 @@ if os.environ.get('VCAP_SERVICES'):
 
     extract_paas_config()
 
+
+def get_team_profile(team_id=None):
+    with open('teams.yml') as f:
+        teams_yml = yaml.load(f)
+
+    if not team_id:
+        return teams_yml['teams']
+    else:
+        team = [t for t in teams_yml['teams'] if str(t.get('id')) == team_id]
+
+    if not team:
+        raise NotFound(f"Team id {team_id} not found in teams.yml")
+
+    return team[0]
+
+
+def get_org_structure():
+    with open('org-structure.yml') as f:
+        org_structure = yaml.load(f)
+    return [org_structure]
+
+
 # encyption secret/salt
 # SECRET_KEY = os.getenv('SECRET_KEY')
 # DANGEROUS_SALT = os.getenv('DANGEROUS_SALT')
@@ -28,19 +50,5 @@ TM_TRELLO_ORG_ID = os.getenv('TM_TRELLO_ORG_ID')
 TM_TRELLO_SECRET = os.getenv('TM_TRELLO_SECRET')
 TM_GITHUB_PAT = os.getenv('TM_GITHUB_PAT')
 
-
-def get_team_profile(team_id=None):
-    with open('teams.yml') as f:
-        teams_yml = yaml.load(f)
-
-    if not team_id:
-        return teams_yml['teams']
-    else:
-        team = [t for t in teams_yml['teams'] if str(t.get('id')) == team_id]
-
-    if not team:
-        raise NotFound(f"Team id {team_id} not found in teams.yml")
-
-    return team[0]
-
 TEAM_PROFILES = get_team_profile()
+ORG_STRUCTURE = get_org_structure()

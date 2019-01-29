@@ -44,11 +44,11 @@ def register_blueprint(application):
     from app.views.re_programme import re_programme_blueprint
     from app.views.techops_team import techop_team_blueprint
     from app.views.assets import assets_blueprint
-    from app.views.teams import teams_blueprint
+    from app.views.team_metrics import team_metrics_blueprint
 
     application.register_blueprint(index_blueprint)
     application.register_blueprint(cyber_team_blueprint)
     application.register_blueprint(re_programme_blueprint)
     application.register_blueprint(techop_team_blueprint)
     application.register_blueprint(assets_blueprint)
-    application.register_blueprint(teams_blueprint)
+    application.register_blueprint(team_metrics_blueprint)

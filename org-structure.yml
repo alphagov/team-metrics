@@ -1,0 +1,35 @@
+name: GDS
+description: Government Digital Service
+children:
+- name: delivery-and-support
+  description: Delivery and Support
+  children:
+  - name: technology-operations
+    description: Tech ops
+    children:
+    - name: reliability-engineering
+      description: Reliability Engineering
+      children:
+      - name: gsp
+        description: New Platform - GDS supported platform
+      - name: observe
+        description: New Platform - Observe
+      - name: paas
+        description: GOV.UK PaaS
+      - name: govuk-migration
+        description: GOV.UK Migration
+      - name: automate
+        description: Automate
+
+    - name: user-support
+      description: User Support
+
+    - name: cyber
+      description: Cyber Security
+      children:
+      - name: engage
+      - name: cyber-tooling
+      - name: operational-intelligence
+      - name: consult
+
+    - name: traceability
