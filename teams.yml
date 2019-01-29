@@ -2,7 +2,7 @@ superusers:
   ken.tsang
 
 teams:
-- id: '1'
+- id: 1
   name: observe
   description: Prometheus, Grafana and Logit
   path: gds/delivery-and-support/technology-operations/reliability-engineering/observe
@@ -21,7 +21,7 @@ teams:
     prometheus-aws-configuration-beta
     re-paas-ip-safelist-service
 
-- id: '2'
+- id: 2
   name: paas
   description: Government as a Platform
   path: gds/delivery-and-support/technology-operations/reliability-engineering/paas
@@ -31,10 +31,10 @@ teams:
     type: pivotal
     id: '1275640'
 
-- id: '3'
+- id: 3
   name: cyber-tooling
   description: Cyber security tools
-  path: gds/delivery-and-support/technology-operations/cyber
+  path: gds/delivery-and-support/technology-operations/cyber/cyber-tooling
   users:
     ken.tsang
   source:
