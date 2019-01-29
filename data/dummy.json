@@ -5,9 +5,9 @@
     "started_on": "2018-09-03T09:00:00Z",
     "ended_on": "2018-09-17T17:00:00Z",
     "source": "na",
-    "cycle_time": "+10%",
+    "avg_cycle_time": "+10%",
     "process_cycle_efficiency": "-3%",
-    "num_stories": "+4%",
+    "num_completed": "+4%",
     "num_incomplete": "+2%" 
   },
   {
@@ -16,9 +16,9 @@
     "started_on": "2018-09-17T09:00:00Z",
     "ended_on": "2018-09-28T17:00:00Z",
     "source": "na",
-    "cycle_time": "+10%",
+    "avg_cycle_time": "+10%",
     "process_cycle_efficiency": "-3%",
-    "num_stories": "+4%",
+    "num_completed": "+4%",
     "num_incomplete": "+2%"
   },
   {
@@ -27,9 +27,9 @@
     "started_on": "2018-10-01T09:00:00Z",
     "ended_on": "2018-10-12T17:00:00Z",
     "source": "na",
-    "cycle_time": "+10%",
+    "avg_cycle_time": "+10%",
     "process_cycle_efficiency": "-3%",
-    "num_stories": "+4%",
+    "num_completed": "+4%",
     "num_incomplete": "+2%"
   },
   {
@@ -38,9 +38,9 @@
     "started_on": "2018-10-15T09:00:00Z",
     "ended_on": "2018-10-26T17:00:00Z",
     "source": "na",
-    "cycle_time": "+10%",
+    "avg_cycle_time": "+10%",
     "process_cycle_efficiency": "-3%",
-    "num_stories": "+4%",
+    "num_completed": "+4%",
     "num_incomplete": "+2%"
   },
   {
@@ -49,9 +49,9 @@
     "started_on": "2018-10-29T09:00:00Z",
     "ended_on": "2018-11-09T17:00:00Z",
     "source": "na",
-    "cycle_time": "+10%",
+    "avg_cycle_time": "+10%",
     "process_cycle_efficiency": "-3%",
-    "num_stories": "+4%",
+    "num_completed": "+4%",
     "num_incomplete": "+2%"
   }
 ]
