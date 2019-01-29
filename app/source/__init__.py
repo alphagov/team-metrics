@@ -61,27 +61,6 @@ def get_process_cycle_efficiency(cycle_time, blocked_time=None):
     return 1  # no blocked time so 100% efficient
 
 
-def get_team_profile(team_id):
-    with open('teams.yml') as f:
-        teams_yml = yaml.load(f)
-
-    team = [t for t in teams_yml['teams'] if str(t.get('id')) == team_id]
-
-    if not team:
-        raise NotFound(f"Team id {team_id} not found in teams.yml")
-
-    return team[0]
-
-
 class Base:
     def get_metrics(self, last_num_weeks=None):
         pass
-
-
-class NotFound(Exception):
-    def __init__(self, message):
-        super(NotFound, self).__init__()
-        self.message = message
-
-    def to_dict(self):
-        return {'result': 'error', 'message': self.message}
