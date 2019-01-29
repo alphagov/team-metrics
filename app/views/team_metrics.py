@@ -9,12 +9,12 @@ from app.views import env
 from app.source import get_quarter_daterange
 from app.source.metrics import get_metrics
 
-team_metrics_blueprint = Blueprint('/teams3/', __name__)
+team_metrics_blueprint = Blueprint('/teams/', __name__)
 
 DUMMY_VIEWS = ['technology-operations', 'reliability-engineering', 'cyber']
 
 
-@team_metrics_blueprint.route('/teams3/<path:path>/generate', methods=['GET'])
+@team_metrics_blueprint.route('/teams/<path:path>/generate', methods=['GET'])
 def teams_generate(path):
     for profile in TEAM_PROFILES:
         if profile['path'] == path:
@@ -45,7 +45,7 @@ def teams_generate(path):
     return template.render()
 
 
-@team_metrics_blueprint.route('/teams3/<path:path>')
+@team_metrics_blueprint.route('/teams/<path:path>')
 def teams(path):
     for profile in TEAM_PROFILES:
         if profile['path'] == path:
@@ -89,7 +89,7 @@ def teams(path):
         team = {
             'name': _get_nice_name(org_part['name']),
             'details': org_part['description'] if org_part.get('description') else org_part['name'].capitalize(),
-            'has_subteams': 'true'
+            'has_subteams': 'true' if org_part.get('children') else 'false'
         }
 
         return template.render(
@@ -163,7 +163,7 @@ def _get_breadcrumbs(path):
 
         breadcrumbs.append(
             {
-                'link': '/teams3/{}'.format(link) if valid else '#',
+                'link': '/teams/{}'.format(link) if valid else '#',
                 'name': _get_nice_name(part)
             }
         )
@@ -180,17 +180,13 @@ def _get_sub_teams(path):
         for child in org_part.get('children'):
             subteam = {
                 'name': child['description'] if child.get('description') else _get_nice_name(child['name']),
-                'has_subteams': True if child.get('children') else False,
-                'link': '/teams3/{}'.format(child['path']) if child.get('path') else '#'
+                'has_subteams': 'true' if child.get('children') else 'false',
+                'link': '/teams/{}'.format(child['path']) if child.get('path') else '#'
             }
 
-            for profile in TEAM_PROFILES:
-                if profile['name'] == child['name']:
-                    subteam['link'] = '/teams3/{}'.format(profile['path'])
-
-            for dummy in DUMMY_VIEWS:
-                if dummy == child['name']:
-                    subteam['link'] = '/teams3/{}'.format(_get_org_path(child['name']))
+            for name in [p['name'] for p in TEAM_PROFILES] + DUMMY_VIEWS:
+                if name == child['name']:
+                    subteam['link'] = '/teams/{}'.format(_get_org_path(name))
 
             subteams.append(subteam)
 
