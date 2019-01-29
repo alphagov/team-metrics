@@ -1,13 +1,11 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from github3 import login
 from github3.exceptions import NotFoundError
 
-import yaml
-
-from app.metrics import Metrics
-from app.source import Base, NotFound, get_quarter_daterange, get_team_profile
+from app.config import get_team_profile
+from app.source import Base, get_quarter_daterange
 
 from app.daos.dao_git_metric import dao_upsert_git_metric
 
