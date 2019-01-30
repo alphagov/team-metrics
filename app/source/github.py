@@ -5,7 +5,7 @@ from github3 import login
 from github3.exceptions import NotFoundError
 
 from app.config import get_team_profile
-from app.source import Base, get_quarter_daterange
+from app.source import Base, get_date_string, get_quarter_daterange
 
 from app.daos.dao_git_metric import dao_upsert_git_metric
 
@@ -69,8 +69,8 @@ class Github(Base):
                             'team_id': self.team_id,
                             'name': repo.name,
                             'pr_number': pr.number,
-                            'start_date': pr.created_at,
-                            'end_date': pr.merged_at,
+                            'start_date': get_date_string(pr.created_at),
+                            'end_date': get_date_string(pr.merged_at),
                             'diff_count': diff_after_pr,
                             'total_diff_count': total_diff,
                             'comments_count': full_pr.comments_count + full_pr.review_comments_count,

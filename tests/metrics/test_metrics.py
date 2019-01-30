@@ -3,6 +3,7 @@ import pytest
 
 from app.metrics import Metrics, dump_json
 from app.source import (
+    get_date_string,
     get_datetime,
     get_process_cycle_efficiency,
     get_quarter_daterange,
@@ -18,6 +19,14 @@ def test_get_quarter_daterange(quarter, expected_datetime_start, expected_dateti
     q_start, q_end = get_quarter_daterange(2018, quarter)
     assert q_start == expected_datetime_start
     assert q_end == expected_datetime_end
+
+
+@pytest.mark.parametrize('datetime,expected_date', [
+    ('2019-01-01 12:00:00', '2019-01-01'),
+    ('2018-09-25 23:00:00', '2018-09-26'),
+])
+def test_get_date_string(datetime, expected_date):
+    assert get_date_string(datetime) == expected_date
 
 
 def test_only_get_cycle_time():

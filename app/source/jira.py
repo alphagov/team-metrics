@@ -7,7 +7,14 @@ from jira.exceptions import JIRAError
 from jira.resources import GreenHopperResource
 
 from app.metrics import Metrics
-from app.source import Base, get_datetime, get_process_cycle_efficiency, get_time_diff, get_quarter_daterange
+from app.source import (
+    Base,
+    get_date_string,
+    get_datetime,
+    get_process_cycle_efficiency,
+    get_time_diff,
+    get_quarter_daterange
+)
 
 
 class Jira(Base):
@@ -134,8 +141,8 @@ class Jira(Base):
                         m = Metrics(
                             project.key,
                             sprint.id,
-                            sprint.raw['startDate'],
-                            sprint.raw['endDate'],
+                            get_date_string(sprint.raw['startDate']),
+                            get_date_string(sprint.raw['endDate']),
                             "jira",
                             cycle_time / stories_completed if cycle_time else None,
                             (process_cycle_efficiency / stories_completed) if stories_completed else 0,

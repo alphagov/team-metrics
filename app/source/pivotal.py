@@ -3,7 +3,15 @@ import os
 from math import ceil
 
 from app.metrics import Metrics
-from app.source import Base, get_datetime, get_process_cycle_efficiency, get_time_diff, get_quarter_daterange
+from app.source import (
+    Base,
+    get_date_string,
+    get_datetime,
+    get_process_cycle_efficiency,
+    get_quarter_daterange,
+    get_time_diff
+)
+
 from app.pivotal_client import ApiError, PivotalClient
 
 
@@ -119,8 +127,8 @@ class Pivotal(Base):
             m = Metrics(
                 self.pivotal.project_id,
                 iteration["number"],
-                iteration["start"],
-                iteration["finish"],
+                get_date_string(iteration["start"]),
+                get_date_string(iteration["finish"]),
                 "pivotal",
                 0 if not cycle_time else cycle_time / num_stories_complete,
                 (process_cycle_efficiency / num_stories_complete) if num_stories_complete else 0,

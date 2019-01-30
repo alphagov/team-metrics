@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 import re
+import time
 import yaml
 
+DATE_PATTERN = r'(^\d{4}-\d{2}-\d{2}).(\d{2}:\d{2}:\d{2}).*'
 DATETIME_PATTERN = r'(^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}).*'
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
@@ -34,6 +36,23 @@ def get_datetime(datetime_str):
     matched_datetime = re.search(DATETIME_PATTERN, datetime_str)
     if matched_datetime:
         return datetime.strptime(matched_datetime.group(1), DATETIME_FORMAT)
+
+
+def get_date_string(datetime_str):
+    matched_date = re.search(DATE_PATTERN, datetime_str)
+    if matched_date:
+        date_str = matched_date.group(1)
+        if matched_date.group(2) == "23:00:00":
+            utc_time = datetime.strptime(f"{date_str}T{matched_date.group(2)}", DATETIME_FORMAT)
+
+            # convert UTC time to local time
+            epoch = time.mktime(utc_time.timetuple())
+            offset = datetime.fromtimestamp(epoch) - datetime.utcfromtimestamp(epoch)
+
+            matched_date = re.search(DATE_PATTERN, str(utc_time + offset))
+            date_str = matched_date.group(1)
+
+        return date_str
 
 
 def get_time_diff(started_at, ended_at=None):
