@@ -20,6 +20,7 @@ children:
         description: GOV.UK Migration
       - name: automate
         description: Automate
+      - name: traceability
 
     - name: user-support
       description: User Support
@@ -31,5 +32,3 @@ children:
       - name: cyber-tooling
       - name: operational-intelligence
       - name: consult
-
-    - name: traceability
