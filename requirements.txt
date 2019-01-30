@@ -1,4 +1,5 @@
 alembic==1.0.3
+python-dateutil==2.7.5
 ipython==5.8
 filemagic==1.6
 freezegun==0.3.11

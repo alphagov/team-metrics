@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from dateutil import tz
 import re
 import time
 import yaml
@@ -45,11 +46,17 @@ def get_date_string(datetime_str):
         if matched_date.group(2) == "23:00:00":
             utc_time = datetime.strptime(f"{date_str}T{matched_date.group(2)}", DATETIME_FORMAT)
 
-            # convert UTC time to local time
-            epoch = time.mktime(utc_time.timetuple())
-            offset = datetime.fromtimestamp(epoch) - datetime.utcfromtimestamp(epoch)
+            from_zone = tz.gettz('UTC')
+            to_zone = tz.gettz('Europe/London')
 
-            matched_date = re.search(DATE_PATTERN, str(utc_time + offset))
+            # Tell the datetime object that it's in UTC time zone since 
+            # datetime objects are 'naive' by default
+            utc = utc_time.replace(tzinfo=from_zone)
+
+            # Convert time zone
+            london = utc.astimezone(to_zone)
+
+            matched_date = re.search(DATE_PATTERN, str(london))
             date_str = matched_date.group(1)
 
         return date_str

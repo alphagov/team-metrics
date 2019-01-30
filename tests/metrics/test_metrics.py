@@ -21,12 +21,12 @@ def test_get_quarter_daterange(quarter, expected_datetime_start, expected_dateti
     assert q_end == expected_datetime_end
 
 
-@pytest.mark.parametrize('datetime,expected_date', [
+@pytest.mark.parametrize('_datetime,expected_date', [
     ('2019-01-01 12:00:00', '2019-01-01'),
     ('2018-09-25 23:00:00', '2018-09-26'),
 ])
-def test_get_date_string(datetime, expected_date):
-    assert get_date_string(datetime) == expected_date
+def test_get_date_string(_datetime, expected_date):
+    assert get_date_string(_datetime) == expected_date
 
 
 def test_only_get_cycle_time():
