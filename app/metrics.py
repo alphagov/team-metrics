@@ -16,7 +16,7 @@ class Metrics:
             num_incomplete
     ):
         self.project_id = project_id
-        self.sprint_id = sprint_id
+        self.sprint_id = str(sprint_id)
         self.started_on = started_on
         self.ended_on = ended_on
         self.source = source
