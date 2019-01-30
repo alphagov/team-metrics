@@ -18,3 +18,13 @@ env = Environment2(loader=ChoiceLoader(
     ]),
     autoescape=select_autoescape(['html', 'xml']),
     extensions=[])
+
+
+def _jinja2_format_date(date):
+    from datetime import datetime
+    date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+
+    return date.strftime('%-d %b')
+
+
+env.filters['format_date'] = _jinja2_format_date

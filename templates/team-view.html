@@ -74,7 +74,7 @@
             <br>(source: {{ metrics[0].source }})
         </th>
         {% for metric in metrics %}
-        <th class="govuk-table__header" scope="col">{{ metric.started_on[:10] }} - {{ metric.ended_on[:10] }}</th>
+        <th class="govuk-table__header" scope="col">{{ metric.started_on|format_date }} to<br>&nbsp;{{ metric.ended_on|format_date }}</th>
         {% endfor %}
     </tr>
     </thead>
