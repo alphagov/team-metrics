@@ -1,10 +1,21 @@
+import pytest
 from app.source.github import Github
 from app.daos.dao_git_metric import dao_upsert_git_metric
 from github3.exceptions import NotFoundError
-import datetime
+from datetime import datetime
 
 
-def mock_github_client(mocker, no_prs=False, create_date=datetime.datetime(2018, 12, 14)):
+def mock_github_client(mocker, prs_dict=None, no_prs=False, create_date=datetime(2018, 12, 14), commit_dates_arr=None):
+
+    if not commit_dates_arr:
+        commit_dates_arr = [
+            "2018-12-10T12:12:12",
+            "2018-12-11T12:12:12",
+            "2018-12-12T12:12:12",
+            "2018-12-13T12:12:12",
+            "2018-12-14T12:12:12",
+        ]
+
     class MockGithubClient:
         def __init__(self, token=''):
             self.token = token
@@ -45,64 +56,91 @@ def mock_github_client(mocker, no_prs=False, create_date=datetime.datetime(2018,
         comments_count = 0
         review_comments_count = 4
 
-        def __init__(self):
-            pass
+        def __init__(self, number=None, title=None, created_at=None, merged_at=None):
+            self.number = number
+            self.title = title
+            self.created_at = created_at
+            self.merged_at = merged_at
+
+        def commits(self):
+            return Commits()
+
+    # need to create something similar to prs_dict for commits
+    if prs_dict is None:
+        prs_dict = [
+            {
+                'number': 1,
+                'title': 'test 1',
+                'created_at': datetime(2018, 11, 1, 12, 0),
+                'merged_at': datetime(2018, 11, 2, 12, 0)
+            },
+            {
+                'number': 2,
+                'title': 'test 2',
+                'created_at': datetime(2018, 11, 3, 12, 0),
+                'merged_at': datetime(2018, 11, 4, 12, 0)
+            }
+        ]
+
+    prs = []
+
+    for pr in prs_dict:
+        # ** unpacks a dict as key-value
+        prs.append(PullReq(**pr))
 
     class PullReqs:
         number = 10
         title = "mock_title"
+        _prs = prs
 
-        def __init__(self, state='closed', low=0, high=1):
+        def __init__(self):
             self.created_at = create_date
             self.no_prs = no_prs
-            self.low = low
-            self.high = high
-            if state == 'closed':
-                self.merged_at = datetime.datetime(2018, 12, 16)
+            self.low = 0
+            self.high = len(prs)
+            self.merged_at = datetime(2018, 12, 16)
 
         def __iter__(self):
             return self
 
         def next(self):
-            if self.low <= self.high:
-                print(f"self: {self.low}")
-                self.low += 1
-                return self
-            elif self.no_prs:
+            if self.no_prs:
                 raise NotFoundError(Thing())
+            elif self.low < self.high:
+                pr = self._prs[self.low]
+                self.low += 1
+                return pr
             else:
                 raise StopIteration
-
-        def commits(self):
-            return Commits()
 
         __next__ = next
 
     class Commits:
         sha = "mock"
 
-        def __init__(self, low=0, high=3):
-            self.low = low
-            self.high = high
+        def __init__(self):
+            self.low = 0
+            self.high = len(commit_dates_arr) - 1
 
         def __iter__(self):
             return self
 
         def next(self):
-            if self.low <= self.high:
-                print(f"self_commit: {self.low}")
+            if self.low < self.high:
                 self.low += 1
+                # should not return self but rather the RepoCommit obj with relevant parts
                 return self
             else:
                 raise StopIteration
 
         __next__ = next
 
+        # should be in RepoCommit not in this class
         def as_dict(self):
             return {
                 'commit': {
                     'author': {
-                        'date': "2018-12-%sT12:12:12" % (10 + self.low)
+                        'date': commit_dates_arr[self.low]
                     }
                 },
             }
@@ -122,8 +160,17 @@ def mock_github_client(mocker, no_prs=False, create_date=datetime.datetime(2018,
     mocker.patch("app.source.github.get_team_profile", return_value={"repos": "test_repo", "name": "fake name"})
 
 
-def test_get_git_metrics(mocker):
-    mock_github_client(mocker)
+def test_just_get_git_metrics(mocker):
+    prs_dict = [
+        {
+            'number': 1,
+            'title': 'test 1',
+            'created_at': datetime(2018, 12, 14, 12, 0),
+            'merged_at': datetime(2018, 12, 16, 12, 0)
+        },
+    ]
+
+    mock_github_client(mocker, prs_dict=prs_dict)
     dao_mock = mocker.patch("app.source.github.dao_upsert_git_metric")
 
     Github().get_metrics(year=2018, quarter=3)
@@ -131,12 +178,14 @@ def test_get_git_metrics(mocker):
         'team_id': '1',
         'team_name': 'fake name',
         'name': 'test_repo_name',
-        'pr_number': 10,
-        'start_date': "2018-12-14",
-        'end_date': "2018-12-16",
+        'pr_number': prs_dict[0]['number'],
+        # would be better to get the dates from the prs_dict rather than hard code it
+        'start_date': '2018-12-14',
+        'end_date': '2018-12-16',
         'diff_count': 30,
         'total_diff_count': 120,
         'comments_count': 4})
+    # assert False
 
 
 def test_get_git_metrics_only_in_quarter(mocker):
@@ -148,8 +197,17 @@ def test_get_git_metrics_only_in_quarter(mocker):
 
 
 def test_get_git_metrics_includes_prs_started_before_quarter(mocker):
-    date = datetime.datetime(2018, 12, 8)
-    mock_github_client(mocker, create_date=date)
+    prs_dict = [
+        {
+            'number': 1,
+            'title': 'test 1',
+            'created_at': datetime(2018, 12, 8, 12, 0),
+            'merged_at': datetime(2018, 12, 16, 12, 0)
+        },
+    ]
+
+    date = datetime(2018, 12, 8)
+    mock_github_client(mocker, create_date=date, prs_dict=prs_dict)
     dao_mock = mocker.patch("app.source.github.dao_upsert_git_metric")
 
     Github().get_metrics(year=2018, quarter=3)
@@ -157,7 +215,7 @@ def test_get_git_metrics_includes_prs_started_before_quarter(mocker):
         'team_id': '1',
         'team_name': 'fake name',
         'name': 'test_repo_name',
-        'pr_number': 10,
+        'pr_number': prs_dict[0]['number'],
         'start_date': "2018-12-08",
         'end_date': "2018-12-16",
         'diff_count': 120,
@@ -169,7 +227,5 @@ def test_get_git_metrics_ignores_repos_without_prs(mocker):
     mock_github_client(mocker, no_prs=True)
     dao_mock = mocker.patch("app.source.github.dao_upsert_git_metric")
 
-    try:
-        Github().get_metrics(year=2018, quarter=3)
-    except NotFoundError:
-        pass
+    Github().get_metrics(year=2018, quarter=3)
+    dao_mock.assert_not_called()

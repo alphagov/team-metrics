@@ -31,57 +31,52 @@ class Github(Base):
             for repo in [r.repository for r in search_results]:
                 prs = repo.pull_requests(state="closed")
 
-                # One of our repos had no prs, for some reason this caused the program to crash
-                # There may be a better way to handle this
-                try:
-                    prs.next()
-                except NotFoundError:
-                    continue
+                while True:
+                    try:
+                        pr = prs.next()
 
-                for pr in prs:
-                    # if repo.name == 'prometheus-aws-configuration-beta' and pr.number == 190:
-                    #     import pdb; pdb.set_trace()
-                    # else:
-                    #     continue
+                        if pr.merged_at and q_start <= pr.merged_at.replace(tzinfo=None) <= q_end:
+                            print(repo.name, pr.title, pr.number)
 
-                    if pr.merged_at and q_start <= pr.merged_at.replace(tzinfo=None) <= q_end:
-                        print(repo.name, pr.title, pr.number)
+                            pr_date = pr.created_at.replace(tzinfo=None)
 
-                        pr_date = pr.created_at.replace(tzinfo=None)
+                            diff_before_pr = diff_after_pr = 0
+                            for c in pr.commits():
+                                commit_json = c.as_dict()
+                                commit_datetime = datetime.strptime(
+                                    commit_json['commit']['author']['date'].replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
 
-                        diff_before_pr = diff_after_pr = 0
-                        for c in pr.commits():
-                            commit_json = c.as_dict()
-                            commit_datetime = datetime.strptime(
-                                commit_json['commit']['author']['date'].replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
+                                for f in repo.commit(c.sha).files:
+                                    if commit_datetime < pr_date:
+                                        diff_before_pr += f['additions'] + f['deletions']
+                                    else:
+                                        diff_after_pr += f['additions'] + f['deletions']
 
-                            for f in repo.commit(c.sha).files:
-                                if commit_datetime < pr_date:
-                                    diff_before_pr += f['additions'] + f['deletions']
-                                else:
-                                    diff_after_pr += f['additions'] + f['deletions']
+                            total_diff = diff_before_pr + diff_after_pr
+                            rework = (diff_after_pr / total_diff) * 100 if total_diff > 0 else 0
+                            print('total diff', total_diff)
+                            print('diff after PR', diff_after_pr)
+                            print('total effort rework: {0:.2f}%'.format(rework))
 
-                        total_diff = diff_before_pr + diff_after_pr
-                        rework = (diff_after_pr / total_diff) * 100 if total_diff > 0 else 0
-                        print('total diff', total_diff)
-                        print('diff after PR', diff_after_pr)
-                        print('total effort rework: {0:.2f}%'.format(rework))
+                            full_pr = repo.pull_request(pr.number)
 
-                        full_pr = repo.pull_request(pr.number)
+                            dao_upsert_git_metric({
+                                'team_id': self.team_id,
+                                'team_name': team['name'],
+                                'name': repo.name,
+                                'pr_number': pr.number,
+                                'start_date': get_date_string(pr.created_at),
+                                'end_date': get_date_string(pr.merged_at),
+                                'diff_count': diff_after_pr,
+                                'total_diff_count': total_diff,
+                                'comments_count': full_pr.comments_count + full_pr.review_comments_count,
+                            })
 
-                        dao_upsert_git_metric({
-                            'team_id': self.team_id,
-                            'team_name': team['name'],
-                            'name': repo.name,
-                            'pr_number': pr.number,
-                            'start_date': get_date_string(pr.created_at),
-                            'end_date': get_date_string(pr.merged_at),
-                            'diff_count': diff_after_pr,
-                            'total_diff_count': total_diff,
-                            'comments_count': full_pr.comments_count + full_pr.review_comments_count,
-                        })
-
-                        i += 1
+                            i += 1
+                    except StopIteration:
+                        break
+                    except NotFoundError:
+                        break
                     # break
                 # if i > 10:
                 #     break
