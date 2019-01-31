@@ -67,6 +67,7 @@ class Github(Base):
 
                         dao_upsert_git_metric({
                             'team_id': self.team_id,
+                            'team_name': team['name'],
                             'name': repo.name,
                             'pr_number': pr.number,
                             'start_date': get_date_string(pr.created_at),
