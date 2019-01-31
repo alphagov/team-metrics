@@ -15,14 +15,16 @@ teams:
   path: gds/delivery-and-support/technology-operations/reliability-engineering/support  
   users:  # who needs to access the team metrics
     john.smith
-  source:  # currently only jira, pivotal and trello are supported
+  source:  # optional, currently only jira, pivotal and trello are supported
     type: pivotal
     id: 112233
-  repos:  # not necessary if you don't have any repos in your team
+  repos:  # optional, not needed if you don't have any repos in your team
     ruby_repo_1
     infrastructure_repo_2
     python-repo-3
 ```
+
+For some guidance on how to find the IDs for your delivery source take a look at the [environment](#Environment) section for tips.
 
 Someone from the traceability team will get in contact you to get access to your team delivery tool, e.g. pivotal, and based on your entry they will create the views necessary to show your team metrics.
 
@@ -38,7 +40,7 @@ The web app is currently deployed into the `traceability` space in `gds-tech-ops
 The first time that a deployment is made a user provided service on PaaS containing the credentials will need to be created: 
 
 ```
-cf cups tm-creds -p '{"TM_JIRA_USER": "somone@gov.uk","TM_JIRA_PAT": "<Jira PAT>","TM_JIRA_HOST": "<Jira host>","TM_JIRA_PROJECT": "CT","TM_PIVOTAL_PAT": "<Pivotal PAT>","TM_PIVOTAL_PROJECT_ID": "<{Pivotal project ID}>","TM_TRELLO_PAT": "<Trello PAT>","TM_TRELLO_TOKEN": "<Trello Token>","TM_TRELLO_BOARD_ID": "<Trello board>","TM_TRELLO_ORG_ID": "<Trello org>","TM_TRELLO_SECRET": "<Trello secret>","TM_GITHUB_PAT": "<Github PAT>"}'
+cf cups tm-creds -p '{"TM_JIRA_USER": "somone@gov.uk","TM_JIRA_PAT": "<Jira PAT>","TM_JIRA_HOST": "<Jira host>","TM_PIVOTAL_PAT": "<Pivotal PAT>","TM_TRELLO_PAT": "<Trello PAT>","TM_TRELLO_TOKEN": "<Trello Token>","TM_TRELLO_ORG_ID": "<Trello org>","TM_TRELLO_SECRET": "<Trello secret>","TM_GITHUB_PAT": "<Github PAT>"}'
 ```
 
 #### Setting the the postgres backend
