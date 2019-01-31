@@ -33,6 +33,25 @@ def get_quarter_daterange(year, quarter):
     return start_date, end_date
 
 
+def get_bi_weekly_sprint_dates(q_start, q_end):
+    sprints = []
+    sprint_start = q_start
+    while sprint_start < q_end:
+        sprint_end = sprint_start + timedelta(weeks=2) - timedelta(seconds=1)
+        sprint = {
+            'started_on': str(sprint_start),
+            'ended_on': str(sprint_end)
+        }
+        sprints.append(sprint)
+        sprint_start += timedelta(weeks=2)
+
+    last_sprint = sprints[-1]
+    if last_sprint['ended_on'] > str(q_end):
+        last_sprint['ended_on'] = str(q_end - timedelta(seconds=1))
+
+    return sprints
+
+
 def get_datetime(datetime_str):
     matched_datetime = re.search(DATETIME_PATTERN, datetime_str)
     if matched_datetime:
@@ -40,7 +59,7 @@ def get_datetime(datetime_str):
 
 
 def get_date_string(datetime_str):
-    matched_date = re.search(DATE_PATTERN, datetime_str)
+    matched_date = re.search(DATE_PATTERN, str(datetime_str))
     if matched_date:
         date_str = matched_date.group(1)
         if matched_date.group(2) == "23:00:00":
