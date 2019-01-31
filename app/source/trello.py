@@ -141,9 +141,10 @@ class Trello(Base):
                     else:
                         # find date it's first moved to DOING
                         for movement in movements:
-                            if not doing_start and \
-                                (re.match(INCOMPLETED_TRELLO_LIST, movement['destination']['name']) or
-                                re.match(COMPLETED_TRELLO_LIST, movement['destination']['name'])
+                            if not doing_start and (
+                                re.match(
+                                    INCOMPLETED_TRELLO_LIST, movement['destination']['name']) or re.match(
+                                        COMPLETED_TRELLO_LIST, movement['destination']['name'])
                             ):
                                 doing_start = str(movement['datetime'])
                                 break
@@ -155,7 +156,7 @@ class Trello(Base):
                         for movement in movements:
                             if str(movement['datetime']) > end_date:
                                 # if the movement is after the sprint and the card is matching DOING, then can ignore
-                                # if the movement is after the sprint but not DOING then it's probably moved to next sprint
+                                # if the movement is after the sprint but not DOING then it's prob moved to next sprint
                                 if re.match(DOING_TRELLO_LIST, movement['destination']['name']):
                                     if doing_start < start_date:
                                         outside_or_completed = True
@@ -217,7 +218,7 @@ class Trello(Base):
                 cycle_time += in_progress_time + blocked_time
 
                 process_cycle_efficiency += get_process_cycle_efficiency(
-                                cycle_time, blocked_time)
+                    cycle_time, blocked_time)
 
             cards_in_done = len(_list.list_cards())
 

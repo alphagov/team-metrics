@@ -66,7 +66,7 @@ def get_cycletime_from_seconds(cycle_time_seconds):
 def create_csv_header(filename):
     with open('data/{}.csv'.format(filename), 'w') as csv:
         csv.writelines(
-            "Project id, Started on, Ended on, Source, Cycle time, " +
+            "Project id, Started on, Ended on, Source, Cycle time, "
             "Process cycle efficiency, Number of stories, Incomplete stories\n"
         )
 

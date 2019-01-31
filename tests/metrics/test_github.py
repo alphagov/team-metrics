@@ -19,6 +19,7 @@ def mock_github_client(mocker, no_prs=False, create_date=datetime.datetime(2018,
 
     class Repo:
         url = "https://github.com/alphagov/test_repo_name"
+
         def __init__(self, arg=1):
             self.name = "test_repo_name"
 
@@ -36,12 +37,14 @@ def mock_github_client(mocker, no_prs=False, create_date=datetime.datetime(2018,
             'additions': 20,
             'deletions': 10
         }]
+
         def __init__(self):
             pass
 
     class PullReq:
         comments_count = 0
         review_comments_count = 4
+
         def __init__(self):
             pass
 
@@ -65,7 +68,7 @@ def mock_github_client(mocker, no_prs=False, create_date=datetime.datetime(2018,
                 print(f"self: {self.low}")
                 self.low += 1
                 return self
-            elif self.no_prs == True:
+            elif self.no_prs:
                 raise NotFoundError(Thing())
             else:
                 raise StopIteration
@@ -77,6 +80,7 @@ def mock_github_client(mocker, no_prs=False, create_date=datetime.datetime(2018,
 
     class Commits:
         sha = "mock"
+
         def __init__(self, low=0, high=3):
             self.low = low
             self.high = high
@@ -106,13 +110,14 @@ def mock_github_client(mocker, no_prs=False, create_date=datetime.datetime(2018,
     class Thing:
         status_code = 400
         content = "hello"
+
         def __init__(self):
             pass
 
     mocker.patch("os.environ", {
         "TM_TEAM_ID": "1",
         "TM_GITHUB_PAT": "test pat"
-        })
+    })
     mocker.patch.object(Github, "gh_login", return_value=MockGithubClient())
     mocker.patch("app.source.github.get_team_profile", return_value={"repos": "test_repo", "name": "fake name"})
 

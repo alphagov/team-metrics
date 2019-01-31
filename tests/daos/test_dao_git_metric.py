@@ -25,32 +25,35 @@ def test_dao_get_git_metrics(dbsession):
 
 
 def test_dao_get_git_metric_between_narrow_daterange(sample_git_metrics):
-    metrics = dao_get_git_metrics_between_daterange(sample_git_metrics[0]['team_id'], '2018-11-17T12:00', '2018-11-18T12:00')
+    metrics = dao_get_git_metrics_between_daterange(
+        sample_git_metrics[0]['team_id'], '2018-11-17T12:00', '2018-11-18T12:00')
     assert len(metrics) == 1
 
 
 def test_dao_get_git_metric_between_wider_daterange(sample_git_metrics):
-    metrics = dao_get_git_metrics_between_daterange(sample_git_metrics[0]['team_id'], '2018-11-08T12:00', '2018-11-19T12:00')
+    metrics = dao_get_git_metrics_between_daterange(
+        sample_git_metrics[0]['team_id'], '2018-11-08T12:00', '2018-11-19T12:00')
     assert len(metrics) == 2
 
 
 def test_dao_get_git_metric_between_wider_daterange_midweek(sample_git_metrics):
-    git_metrics = dao_get_git_metrics_between_daterange(sample_git_metrics[0]['team_id'], '2018-11-01T12:00', '2018-11-21T12:00')
+    git_metrics = dao_get_git_metrics_between_daterange(
+        sample_git_metrics[0]['team_id'], '2018-11-01T12:00', '2018-11-21T12:00')
     assert len(git_metrics) == 2
 
 
 def test_upsert_git_metric_can_add_metric(dbsession):
     m = {
-            'team_id': 'fake_team_id',
-            'team_name': 'fake_team_name',
-            'name': 'repo_name',
-            'pr_number': '4',
-            'start_date': '2018-11-09T12:00',
-            'end_date': '2018-11-16T12:00',
-            'diff_count': 90,
-            'total_diff_count': 100,
-            'comments_count': 5,
-        }
+        'team_id': 'fake_team_id',
+        'team_name': 'fake_team_name',
+        'name': 'repo_name',
+        'pr_number': '4',
+        'start_date': '2018-11-09T12:00',
+        'end_date': '2018-11-16T12:00',
+        'diff_count': 90,
+        'total_diff_count': 100,
+        'comments_count': 5,
+    }
     dao_upsert_git_metric(m)
     db_metrics = dbsession.query(GitMetric).all()
 
@@ -61,16 +64,16 @@ def test_upsert_git_metric_can_add_metric(dbsession):
 
 def test_upsert_git_metric_can_update_metric(dbsession):
     m = {
-            'team_id': 'fake_team_id',
-            'team_name': 'fake_team_name',
-            'name': 'repo_name',
-            'pr_number': '4',
-            'start_date': '2018-11-09T12:00',
-            'end_date': '2018-11-16T12:00',
-            'diff_count': 90,
-            'total_diff_count': 100,
-            'comments_count': 5,
-        }
+        'team_id': 'fake_team_id',
+        'team_name': 'fake_team_name',
+        'name': 'repo_name',
+        'pr_number': '4',
+        'start_date': '2018-11-09T12:00',
+        'end_date': '2018-11-16T12:00',
+        'diff_count': 90,
+        'total_diff_count': 100,
+        'comments_count': 5,
+    }
     dao_upsert_git_metric(m)
     db_metrics = dbsession.query(GitMetric).all()
 

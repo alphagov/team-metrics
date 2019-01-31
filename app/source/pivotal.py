@@ -27,7 +27,7 @@ class Pivotal(Base):
             # blocked_time = get_datetime(updated_at) - get_datetime(created_at)
             blocked_time = get_time_diff(created_at, updated_at)
         return blocked_time
- 
+
     def get_started_at(self, story_id):
         activities = self.pivotal.get_story_activities(story_id)
         for activity in activities:
@@ -96,7 +96,7 @@ class Pivotal(Base):
                         cycle_time += _cycle_time
                     else:
                         cycle_time = _cycle_time
-                    
+
                     print('  cycle_time: {}'.format(_cycle_time))
 
                     if story.get('accepted_at'):
@@ -109,7 +109,7 @@ class Pivotal(Base):
                             # we need to decide whether we include the cycle time of a previous iteration?
                             # also should teams unstart and then restart stories in a different iteration
                             continue
-                        
+
                         print("  process_cycle_efficiency: {}".format(_process_cycle_efficiency))
 
                         if process_cycle_efficiency:

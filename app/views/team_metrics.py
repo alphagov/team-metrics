@@ -226,7 +226,8 @@ def _get_git_metrics(profile, sprint, git_metrics):
 
         repo['num_prs'] += 1
         repo['total_comments'] += gm.comments_count
-        repo['url'] = f"https://github.com/alphagov/{gm.name}/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aclosed+merged%3A{sprint['started_on'].split(' ')[0]}..{sprint['ended_on'].split(' ')[0]}"
+        repo['url'] = f"""https://github.com/alphagov/{gm.name}/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aclosed+merged%3A"""
+        """{sprint['started_on'].split(' ')[0]}..{sprint['ended_on'].split(' ')[0]}"""
 
     for repo in repos:
         repo['code_rework'] = (repo['diff_count'] / repo['total_diff_count']) * 100
@@ -245,7 +246,9 @@ def _get_git_metrics(profile, sprint, git_metrics):
         git_metric_sprint['num_prs'] = repo['num_prs']
         git_metric_sprint['code_rework'] = repo['code_rework']
         git_metric_sprint['total_comments'] = repo['total_comments']
-        git_metric_sprint['url'] = f"https://github.com/alphagov/{repo['name']}/pulls?utf8=%E2%9C%93&q=merged%3A{sprint['started_on'].split(' ')[0]}..{sprint['ended_on'].split(' ')[0]}+is%3Apr+is%3Aclosed"
+        git_metric_sprint['url'] = f"""https://github.com/alphagov/{repo['name']}"""
+        """/pulls?utf8=%E2%9C%93&q=merged%3A{sprint['started_on'].split(' ')[0]}"""
+        """..{sprint['ended_on'].split(' ')[0]}+is%3Apr+is%3Aclosed"""
 
         git_metric['sprints'].append(git_metric_sprint)
 

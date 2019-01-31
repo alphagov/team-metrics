@@ -93,7 +93,8 @@ class Jira(Base):
                             continue
 
                         # sprints before
-                        if (year and quarter and (
+                        if (
+                            year and quarter and (
                                 sprint.raw['startDate'] < q_start.strftime('%Y-%m-%dT%H:%M:%S') or
                                 sprint.raw['startDate'] > q_end.strftime('%Y-%m-%dT%H:%M:%S')
                             )
@@ -126,7 +127,7 @@ class Jira(Base):
                             print("blocked time: {}".format(self.get_blocked_time(issue)))
 
                             _process_cycle_efficiency = get_process_cycle_efficiency(
-                                    _cycle_time, self.get_blocked_time(issue))
+                                _cycle_time, self.get_blocked_time(issue))
                             if process_cycle_efficiency:
                                 process_cycle_efficiency += _process_cycle_efficiency
                             else:

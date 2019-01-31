@@ -52,7 +52,8 @@ class Github(Base):
                         diff_before_pr = diff_after_pr = 0
                         for c in pr.commits():
                             commit_json = c.as_dict()
-                            commit_datetime = datetime.strptime(commit_json['commit']['author']['date'].replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
+                            commit_datetime = datetime.strptime(
+                                commit_json['commit']['author']['date'].replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
 
                             for f in repo.commit(c.sha).files:
                                 if commit_datetime < pr_date:

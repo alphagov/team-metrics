@@ -57,6 +57,7 @@ def get_datetime(datetime_str):
     if matched_datetime:
         return datetime.strptime(matched_datetime.group(1), DATETIME_FORMAT)
 
+
 def get_date_string(date_and_time):
     matched_date = re.search(DATE_PATTERN, str(date_and_time))
 

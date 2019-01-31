@@ -81,11 +81,11 @@ def mock_pivotal_client(
 
 def test_get_blocked_time(mocker):
     story = {
-            "id": 1,
-            "current_state": "accepted",
-            "name": "test",
-            "created_at": "2018-11-01T12:00:00Z",
-            "accepted_at": "2018-11-02T12:00:00Z",
+        "id": 1,
+        "current_state": "accepted",
+        "name": "test",
+        "created_at": "2018-11-01T12:00:00Z",
+        "accepted_at": "2018-11-02T12:00:00Z",
     }
 
     story_blockers = [
@@ -106,10 +106,10 @@ def test_get_blocked_time(mocker):
 
 def test_get_blocked_time_unresolved_is_none(mocker):
     story = {
-            "id": 1,
-            "current_state": "started",
-            "name": "test",
-            "created_at": "2018-11-01T12:00:00Z",
+        "id": 1,
+        "current_state": "started",
+        "name": "test",
+        "created_at": "2018-11-01T12:00:00Z",
     }
 
     story_blockers = [
@@ -145,9 +145,9 @@ def test_pvotal_get_metrics(mocker):
 
     assert len(metrics) == 1
     assert metrics[0].avg_cycle_time == (
-        get_datetime(story_accepted) - get_datetime(story_started) - 
         # subtract 2 days as there is a weekend between start end accepted
-        timedelta(days=2)).total_seconds()
+        get_datetime(story_accepted) - get_datetime(story_started) - timedelta(days=2)
+    ).total_seconds()
     assert metrics[0].process_cycle_efficiency == 1
 
 
@@ -180,8 +180,9 @@ def test_get_pivotal_metrics_with_story_blocker(mocker):
 
     assert len(metrics) == 1
     assert metrics[0].avg_cycle_time == (
-        get_datetime(story_accepted) - get_datetime(story_started)
-        - timedelta(days=2)).total_seconds()
+        get_datetime(story_accepted) - get_datetime(story_started) - timedelta(days=2)
+    ).total_seconds()
+
     assert metrics[0].process_cycle_efficiency == (
         (get_datetime(blocked_updated) - get_datetime(blocked_start)) /
         (get_datetime(story_accepted) - get_datetime(story_started) - timedelta(days=2))
@@ -224,7 +225,7 @@ def test_get_pivotal_metrics_with_story_blocker_unresolved(mocker):
 
     assert len(metrics) == 1
     assert metrics[0].avg_cycle_time == (
-        get_datetime(story_accepted) - get_datetime(story_started)
-        - timedelta(days=2)).total_seconds()
+        get_datetime(story_accepted) - get_datetime(story_started) - timedelta(days=2)
+    ).total_seconds()
     assert metrics[0].process_cycle_efficiency == 1
     assert metrics[0].num_incomplete == 1

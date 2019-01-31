@@ -22,7 +22,12 @@ else
     fi
 fi
 
+<<<<<<< HEAD
 python -m pytest --cov=app --cov-report=term-missing --disable-pytest-warnings tests/
+=======
+pycodestyle .
+python -m pytest --disable-pytest-warnings tests/
+>>>>>>> Update code for pycodestyle format
 
 if [ $? != '0' ]; then
     exit 1
