@@ -6,7 +6,7 @@ from app.config import TEAM_PROFILES, ORG_STRUCTURE
 from app.daos.dao_team_metric import dao_get_sprints_between_daterange, dao_upsert_sprint
 from app.daos.dao_git_metric import dao_get_git_metrics_between_daterange
 from app.views import env
-from app.source import get_quarter_daterange
+from app.source import get_quarter_daterange, get_bi_weekly_sprint_dates
 from app.source.metrics import get_metrics
 
 team_metrics_blueprint = Blueprint('/teams/', __name__)
@@ -19,14 +19,15 @@ def teams_generate(path):
     for profile in TEAM_PROFILES:
         if profile['path'] == path:
             def generate_metrics():
-                metrics = get_metrics(profile['source']['type'], profile['source']['id'], 2018, 3)
+                if profile.get('source'):
+                    metrics = get_metrics(profile['source']['type'], profile['source']['id'], 2018, 3)
 
-                for metric in metrics:
-                    dao_upsert_sprint(metric)
-                print(f'{profile["name"]} metrics generated')
+                    for metric in metrics:
+                        dao_upsert_sprint(metric)
+                    print(f'{profile["name"]} metrics generated')
 
                 if profile['repos']:
-                    get_metrics('github', profile['id'], year=2018, quarter=3)
+                    get_metrics('github', str(profile['id']), year=2018, quarter=3)
                     print(f'{profile["name"]} git metrics generated')
 
             _thread.start_new_thread(generate_metrics, ())
@@ -54,10 +55,16 @@ def teams(path):
 
             q_start, q_end = get_quarter_daterange(2018, 3)
 
-            for sprint in dao_get_sprints_between_daterange(profile['source']['id'], q_start, q_end):
-                sprint_dict = sprint.serialize()
-                sprint_dict, git_metrics = _get_git_metrics(profile, sprint_dict, git_metrics)
-                metrics_list.append(sprint_dict)
+            if profile.get('source'):
+                sprints = dao_get_sprints_between_daterange(profile['source']['id'], q_start, q_end)
+            else:
+                sprints = get_bi_weekly_sprint_dates(q_start, q_end)
+
+            for sprint in sprints:
+                if type(sprint) is not dict:
+                    sprint = sprint.serialize()
+                sprint, git_metrics = _get_git_metrics(profile, sprint, git_metrics)
+                metrics_list.append(sprint)
 
             _check_repo_in_sprint(metrics_list, git_metrics)
 

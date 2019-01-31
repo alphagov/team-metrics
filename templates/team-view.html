@@ -71,7 +71,9 @@
                 Aggregated
             {% endif %}
             Metrics for Q3 2018-19
+            {% if metrics[0].source %}
             <br>(source: {{ metrics[0].source }})
+            {% endif %}
         </th>
         {% for metric in metrics %}
         <th class="govuk-table__header" scope="col">{{ metric.started_on|format_date }} to<br>&nbsp;{{ metric.ended_on|format_date }}</th>
@@ -79,6 +81,7 @@
     </tr>
     </thead>
     <tbody class="govuk-table__body">
+    {% if metrics[0].source %}
     <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="row">
             <span class="tooltip">Cycle time
@@ -124,6 +127,7 @@
         <td class="govuk-table__cell">{{ metric.num_incomplete }}</td>
         {% endfor %}
     </tr>
+    {% endif %}
     {% if git_metrics %}
     <tr class="govuk-table__row" style='vertical-align: top'>
         <th class="govuk-table__header" scope="row">
