@@ -1,6 +1,3 @@
-from datetime import timedelta
-
-from app.metrics import Metrics
 from app.models import GitMetric
 from app.daos.dao_git_metric import (
     dao_get_git_metrics,
