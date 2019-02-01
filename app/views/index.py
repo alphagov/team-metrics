@@ -29,7 +29,7 @@ def index():
         path = _get_user_from_team(session['email'])
 
         if not path:
-                return redirect(f'teams/{DEFAULT_PATH}')
+            return redirect(f'teams/{DEFAULT_PATH}')
         else:
             return redirect(f'teams/{path}')
 

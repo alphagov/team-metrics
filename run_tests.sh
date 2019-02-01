@@ -10,7 +10,7 @@ if [[ $NO_PSQL == 1 || $USE_DOCKER == 'true' ]]; then
         docker stop "$DB_CONTAINER_NAME" >/dev/null 2>&1 || echo -n ''
     }
     trap stop_database EXIT
-    
+
     export SQLALCHEMY_DATABASE_URI=postgresql://postgres@localhost:5432/$DB_NAME
     stop_database
     mkdir -p log
@@ -22,12 +22,7 @@ else
     fi
 fi
 
-<<<<<<< HEAD
 python -m pytest --cov=app --cov-report=term-missing --disable-pytest-warnings tests/
-=======
-pycodestyle .
-python -m pytest --disable-pytest-warnings tests/
->>>>>>> Update code for pycodestyle format
 
 if [ $? != '0' ]; then
     exit 1
