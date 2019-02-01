@@ -36,7 +36,9 @@
             <a href="#" class="govuk-header__link govuk-header__link--service-name">
                 GDS Team Metrics
             </a>
-
+            {% if get_email() %}
+            <span style='float:right; margin-top:5px;'>{{ get_email() }} - <a href="/logout" draggable="false" style='color:white; text-decoration: none;font-weight:bold;'>Log out</a></span>
+            {% endif %}
         </div>
     </div>
 </header>

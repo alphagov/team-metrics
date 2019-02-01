@@ -4,7 +4,10 @@ import uuid
 import alembic.config
 from alembic.config import Config
 import alembic.command
+from flask import redirect, request, session
+from flask import Flask
 from psycopg2 import ProgrammingError
+import requests
 
 from app.metrics_db import Metrics_DB
 
@@ -19,8 +22,13 @@ def create_app(application):
     handler.setLevel(logging.DEBUG)  # only log errors and above
     application.logger.addHandler(handler)  # attach the handler to the app's logger
 
+    from app.config import Config
+    application.config.from_object(Config)
+
     db.init()
     alembic_upgrade()
+
+    application.before_request(check_auth_before_request)
 
     register_blueprint(application)
 
@@ -46,3 +54,8 @@ def register_blueprint(application):
     application.register_blueprint(index_blueprint)
     application.register_blueprint(assets_blueprint)
     application.register_blueprint(team_metrics_blueprint)
+
+
+def check_auth_before_request():
+    if '/teams/' in request.url and not session.get('email'):
+        return redirect('/')

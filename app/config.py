@@ -33,9 +33,10 @@ def get_org_structure():
     return [org_structure]
 
 
-# encyption secret/salt
-# SECRET_KEY = os.getenv('SECRET_KEY')
-# DANGEROUS_SALT = os.getenv('DANGEROUS_SALT')
+class Config:
+    # encyption secret/salt
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    DANGEROUS_SALT = os.getenv('DANGEROUS_SALT')
 
 # DB conection string
 SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
@@ -52,3 +53,13 @@ TM_GITHUB_PAT = os.getenv('TM_GITHUB_PAT')
 
 TEAM_PROFILES = get_team_profile()
 ORG_STRUCTURE = get_org_structure()
+
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+REDIRECT_URI = 'http://localhost:5000/oauth2callback'
+AUTH_URI = 'https://accounts.google.com/o/oauth2/auth'
+TOKEN_URI = 'https://accounts.google.com/o/oauth2/token'
+REVOKE_URI = 'https://accounts.google.com/o/oauth2/revoke'
+USER_INFO = 'https://www.googleapis.com/userinfo/v2/me'
+SCOPE = ['profile', 'email']
+OAUTHLIB_INSECURE_TRANSPORT = os.getenv('OAUTHLIB_INSECURE_TRANSPORT')

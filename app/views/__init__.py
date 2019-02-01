@@ -1,4 +1,5 @@
 from os import path
+from flask import session
 
 from jinja2 import select_autoescape, ChoiceLoader, FileSystemLoader, Environment
 
@@ -27,4 +28,9 @@ def _jinja2_format_date(date):
     return date.strftime('%-d %b')
 
 
+def _jinja2_get_email():
+    return session.get('email')
+
+
 env.filters['format_date'] = _jinja2_format_date
+env.globals['get_email'] = _jinja2_get_email
