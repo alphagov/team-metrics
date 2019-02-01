@@ -12,6 +12,12 @@ if os.environ.get('VCAP_SERVICES'):
     extract_paas_config()
 
 
+def get_default_path():
+    with open('teams.yml') as f:
+        teams_yml = yaml.load(f)
+    return teams_yml.get('default-path', 'teams/gds/delivery-and-support/technology-operations')
+
+
 def get_team_profile(team_id=None):
     with open('teams.yml') as f:
         teams_yml = yaml.load(f)
@@ -53,6 +59,7 @@ TM_GITHUB_PAT = os.getenv('TM_GITHUB_PAT')
 
 TEAM_PROFILES = get_team_profile()
 ORG_STRUCTURE = get_org_structure()
+DEFAULT_PATH = get_default_path()
 
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')

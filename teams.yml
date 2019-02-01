@@ -1,5 +1,4 @@
-superusers:
-  ken.tsang
+default-path: gds/delivery-and-support/technology-operations/reliability-engineering/observe
 
 teams:
 - id: 1
@@ -8,9 +7,9 @@ teams:
   path: gds/delivery-and-support/technology-operations/reliability-engineering/observe
   users:
     ken.tsang
-  source:
-    type: trello
-    id: Z7dOu9Up
+  # source:
+  #   type: trello
+  #   id: Z7dOu9Up
   repos:
     cf_app_discovery
     gds_metrics_dropwizard

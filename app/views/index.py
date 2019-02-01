@@ -10,6 +10,7 @@ from app.config import (
     AUTH_URI,
     CLIENT_ID,
     CLIENT_SECRET,
+    DEFAULT_PATH,
     OAUTHLIB_INSECURE_TRANSPORT,
     REDIRECT_URI,
     REVOKE_URI,
@@ -26,8 +27,9 @@ index_blueprint = Blueprint('/', __name__)
 def index():
     if session.get('email'):
         path = _get_user_from_team(session['email'])
+
         if not path:
-            return redirect('teams/gds/delivery-and-support/technology-operations')
+                return redirect(f'teams/{DEFAULT_PATH}')
         else:
             return redirect(f'teams/{path}')
 
@@ -69,7 +71,7 @@ def callback():
             session['email'] = email
             path = _get_user_from_team(email)
             if not path:
-                return redirect('teams/gds/delivery-and-support/technology-operations')
+                return redirect(f'teams/{DEFAULT_PATH}')
             else:
                 return redirect(f'teams/{path}')
         return 'Could not fetch your information.'
