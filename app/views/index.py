@@ -69,11 +69,15 @@ def callback():
             user_data = resp.json()
             email = user_data['email']
             session['email'] = email
-            path = _get_user_from_team(email)
-            if not path:
-                return redirect(f'teams/{DEFAULT_PATH}')
+
+            if session.get('target_url'):
+                return redirect(session.pop('target_url'))
             else:
-                return redirect(f'teams/{path}')
+                path = _get_user_from_team(email)
+                if not path:
+                    return redirect(f'teams/{DEFAULT_PATH}')
+                else:
+                    return redirect(f'teams/{path}')
         return 'Could not fetch your information.'
 
 

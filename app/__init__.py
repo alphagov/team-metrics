@@ -58,4 +58,5 @@ def register_blueprint(application):
 
 def check_auth_before_request():
     if '/teams/' in request.url and not session.get('email'):
+        session['target_url'] = request.url
         return redirect('/')
