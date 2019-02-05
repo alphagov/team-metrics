@@ -16,8 +16,8 @@ class Github(Base):
 
         self.gh = self.gh_login(os.environ['TM_GITHUB_PAT'])
 
-    def gh_login(token):
-        login(token)
+    def gh_login(self, token):
+        return login(token=token)
 
     def get_metrics(self, year=None, quarter=None):
         i = 0
