@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "prototype to display team metrics",
   "engines": {
-    "node": "10.13.0"
+    "node": "10.15.0"
   },
   "scripts": {},
   "repository": {

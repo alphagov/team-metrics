@@ -12,7 +12,7 @@ resources:
     username: ((cloud_foundry_username))
     password: ((cloud_foundry_password))
     organization: gds-tech-ops
-    space: traceability
+    space: sandbox
 
 jobs:
 - name: test-and-build
@@ -50,7 +50,7 @@ jobs:
           type: docker-image
           source:
             repository: node
-            tag: 10.13.0
+            tag: 10.15.0
         inputs:
           - name: team-metrics-git
         outputs:
