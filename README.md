@@ -30,9 +30,9 @@ Someone from the traceability team will get in contact you to get access to your
 
 ## Deployment to PaaS
 
-The web app is currently deployed into the `traceability` space in `gds-tech-ops`, if you can't see the space, you will need to be added to the space: 
+The web app is currently deployed into the `sandbox` space in `gds-tech-ops`, if you can't see the space, you will need to be added to the space: 
 
-`cf set-space-role a.developer@gov.uk gds-tech-ops traceability SpaceDeveloper`
+`cf set-space-role a.developer@gov.uk gds-tech-ops sandbox SpaceDeveloper`
 
 ### Deployment pre-requisites
 #### Secrets
@@ -40,7 +40,7 @@ The web app is currently deployed into the `traceability` space in `gds-tech-ops
 The first time that a deployment is made a user provided service on PaaS containing the credentials will need to be created: 
 
 ```
-cf cups tm-creds -p '{"TM_JIRA_USER": "somone@gov.uk","TM_JIRA_PAT": "<Jira PAT>","TM_JIRA_HOST": "<Jira host>","TM_PIVOTAL_PAT": "<Pivotal PAT>","TM_TRELLO_PAT": "<Trello PAT>","TM_TRELLO_TOKEN": "<Trello Token>","TM_TRELLO_ORG_ID": "<Trello org>","TM_TRELLO_SECRET": "<Trello secret>","TM_GITHUB_PAT": "<Github PAT>"}'
+cf cups tm-creds -p '{"TM_JIRA_USER": "somone@gov.uk","TM_JIRA_PAT": "<Jira PAT>","TM_JIRA_HOST": "<Jira host>","TM_PIVOTAL_PAT": "<Pivotal PAT>","TM_TRELLO_PAT": "<Trello PAT>","TM_TRELLO_TOKEN": "<Trello Token>","TM_TRELLO_ORG_ID": "<Trello org>","TM_TRELLO_SECRET": "<Trello secret>","TM_GITHUB_PAT": "<Github PAT>","CLIENT_ID":"<client id from https://console.cloud.google.com/apis/credentials>","CLIENT_SECRET":"<client secret from https://console.cloud.google.com/apis/credentials>","REDIRECT_URI":"<default is - https://team-metrics.cloudapps.digital/oauth2callback>"}}'
 ```
 
 #### Setting the the postgres backend
@@ -111,3 +111,11 @@ After sourcing the `environment.sh` you can start the web app by running:
 `./main.py`
 
 Follow instructions to see team metrics from delivery tools
+
+### CI pipeline updates
+
+The `team-metrics` web application will automatically be deployed onto PaaS via concourse when the master branch is updated.
+
+In order to make changes to the pipeline you will have to install the concourse [fly cli](https://concourse-ci.org/fly.html) and run this command - 
+
+`fly -t cd-sandbox set-pipeline -p team-metrics -c ci/pipeline.yml`
